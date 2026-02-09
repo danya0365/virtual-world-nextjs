@@ -7,12 +7,20 @@ import { AnimatedCard } from '@/src/presentation/components/common/AnimatedCard'
 import { ColorPicker } from '@/src/presentation/components/common/ColorPicker';
 import { GlassPanel } from '@/src/presentation/components/common/GlassPanel';
 import { animated, config, useSpring } from '@react-spring/web';
-import { Coins, Gem, Play, Sparkles, Star, Users } from 'lucide-react';
-import { useState } from 'react';
+import { Box, Coins, Gem, Layers, Play, Sparkles, Star, Users } from 'lucide-react';
+import { Suspense, lazy, useState } from 'react';
+
+// Lazy load 3D component
+const Character3D = lazy(() => 
+  import('@/src/presentation/components/3d/Character3D').then(mod => ({ default: mod.Character3D }))
+);
+
+type ViewMode = 'css' | '3d';
 
 export function HomeView() {
   const [selectedColor, setSelectedColor] = useState('white');
   const [isCharacterHovered, setIsCharacterHovered] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('css');
 
   // Character animation
   const characterSpring = useSpring({
@@ -31,21 +39,50 @@ export function HomeView() {
   });
 
   const stats = siteConfig.defaultStats;
+  const currentColor = CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0';
 
   return (
     <div className="min-h-[calc(100vh-12rem)] flex flex-col gap-8">
       {/* Welcome Section */}
-      <animated.div style={titleSpring} className="text-center sm:text-left">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-          <span className="text-[hsl(var(--color-text-primary))]">
-            ยินดีต้อนรับกลับมา,{' '}
-          </span>
-          <span className="gradient-text">Mike!</span>
-          <span className="ml-2 inline-block animate-bounce-soft">👋</span>
-        </h1>
-        <p className="text-[hsl(var(--color-text-secondary))]">
-          พร้อมที่จะสำรวจโลกใหม่แล้วหรือยัง?
-        </p>
+      <animated.div style={titleSpring} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+            <span className="text-[hsl(var(--color-text-primary))]">
+              ยินดีต้อนรับกลับมา,{' '}
+            </span>
+            <span className="gradient-text">Mike!</span>
+            <span className="ml-2 inline-block animate-bounce-soft">👋</span>
+          </h1>
+          <p className="text-[hsl(var(--color-text-secondary))]">
+            พร้อมที่จะสำรวจโลกใหม่แล้วหรือยัง?
+          </p>
+        </div>
+        
+        {/* View Mode Toggle */}
+        <GlassPanel padding="none" className="flex rounded-xl overflow-hidden self-start">
+          <button
+            onClick={() => setViewMode('css')}
+            className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+              ${viewMode === 'css' 
+                ? 'bg-[hsl(var(--color-primary))] text-white' 
+                : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+              }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span className="text-sm font-medium">CSS</span>
+          </button>
+          <button
+            onClick={() => setViewMode('3d')}
+            className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+              ${viewMode === '3d' 
+                ? 'bg-[hsl(var(--color-primary))] text-white' 
+                : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+              }`}
+          >
+            <Box className="w-4 h-4" />
+            <span className="text-sm font-medium">3D</span>
+          </button>
+        </GlassPanel>
       </animated.div>
 
       {/* Main Content Grid */}
@@ -73,84 +110,100 @@ export function HomeView() {
               onMouseEnter={() => setIsCharacterHovered(true)}
               onMouseLeave={() => setIsCharacterHovered(false)}
             >
-              {/* Character Display */}
-              <animated.div 
-                style={characterSpring}
-                className="relative"
-              >
-                {/* Character Body - Simple CSS representation */}
-                <div 
-                  className="relative w-48 h-56 sm:w-56 sm:h-64 md:w-64 md:h-72"
-                  style={{
-                    filter: 'drop-shadow(0 20px 40px rgba(100, 100, 200, 0.3))',
-                  }}
+              {viewMode === '3d' ? (
+                /* 3D Character */
+                <Suspense fallback={
+                  <div className="flex items-center justify-center h-64 w-full">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[hsl(var(--color-primary))] border-t-transparent" />
+                  </div>
+                }>
+                  <div className="w-full h-72">
+                    <Character3D 
+                      color={currentColor}
+                      accessories={[]}
+                    />
+                  </div>
+                </Suspense>
+              ) : (
+                /* CSS Character */
+                <animated.div 
+                  style={characterSpring}
+                  className="relative"
                 >
-                  {/* Head */}
+                  {/* Character Body - Simple CSS representation */}
                   <div 
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 sm:w-32 sm:h-32 
-                              rounded-3xl shadow-lg"
+                    className="relative w-48 h-56 sm:w-56 sm:h-64 md:w-64 md:h-72"
                     style={{
-                      background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
+                      filter: 'drop-shadow(0 20px 40px rgba(100, 100, 200, 0.3))',
                     }}
                   >
-                    {/* Eyes */}
-                    <div className="absolute top-12 left-6 w-3 h-3 rounded-full bg-gray-800" />
-                    <div className="absolute top-12 right-6 w-3 h-3 rounded-full bg-gray-800" />
-                    {/* Mouth */}
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-gray-600" />
+                    {/* Head */}
+                    <div 
+                      className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 sm:w-32 sm:h-32 
+                                rounded-3xl shadow-lg"
+                      style={{
+                        background: currentColor,
+                      }}
+                    >
+                      {/* Eyes */}
+                      <div className="absolute top-12 left-6 w-3 h-3 rounded-full bg-gray-800" />
+                      <div className="absolute top-12 right-6 w-3 h-3 rounded-full bg-gray-800" />
+                      {/* Mouth */}
+                      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-gray-600" />
+                    </div>
+
+                    {/* Body */}
+                    <div 
+                      className="absolute top-24 left-1/2 -translate-x-1/2 w-24 h-28 sm:w-28 sm:h-32 
+                                rounded-3xl shadow-lg"
+                      style={{
+                        background: currentColor,
+                      }}
+                    />
+
+                    {/* Left Arm */}
+                    <div 
+                      className="absolute top-28 left-2 w-4 h-16 rounded-full shadow-md"
+                      style={{
+                        background: currentColor,
+                      }}
+                    />
+
+                    {/* Right Arm */}
+                    <div 
+                      className="absolute top-28 right-2 w-4 h-16 rounded-full shadow-md"
+                      style={{
+                        background: currentColor,
+                      }}
+                    />
+
+                    {/* Legs */}
+                    <div 
+                      className="absolute bottom-0 left-1/2 -translate-x-[130%] w-6 h-12 rounded-xl shadow-md"
+                      style={{
+                        background: currentColor,
+                      }}
+                    />
+                    <div 
+                      className="absolute bottom-0 left-1/2 translate-x-[30%] w-6 h-12 rounded-xl shadow-md"
+                      style={{
+                        background: currentColor,
+                      }}
+                    />
                   </div>
 
-                  {/* Body */}
-                  <div 
-                    className="absolute top-24 left-1/2 -translate-x-1/2 w-24 h-28 sm:w-28 sm:h-32 
-                              rounded-3xl shadow-lg"
-                    style={{
-                      background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                    }}
+                  {/* Floating sparkles */}
+                  <Sparkles className="absolute -top-4 -right-4 w-6 h-6 text-yellow-400 animate-bounce-soft" />
+                  <Sparkles 
+                    className="absolute top-1/2 -left-8 w-5 h-5 text-pink-400 animate-float" 
+                    style={{ animationDelay: '-1s' }}
                   />
-
-                  {/* Left Arm */}
-                  <div 
-                    className="absolute top-28 left-2 w-4 h-16 rounded-full shadow-md"
-                    style={{
-                      background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                    }}
-                  />
-
-                  {/* Right Arm */}
-                  <div 
-                    className="absolute top-28 right-2 w-4 h-16 rounded-full shadow-md"
-                    style={{
-                      background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                    }}
-                  />
-
-                  {/* Legs */}
-                  <div 
-                    className="absolute bottom-0 left-1/2 -translate-x-[130%] w-6 h-12 rounded-xl shadow-md"
-                    style={{
-                      background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                    }}
-                  />
-                  <div 
-                    className="absolute bottom-0 left-1/2 translate-x-[30%] w-6 h-12 rounded-xl shadow-md"
-                    style={{
-                      background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                    }}
-                  />
-                </div>
-
-                {/* Floating sparkles */}
-                <Sparkles className="absolute -top-4 -right-4 w-6 h-6 text-yellow-400 animate-bounce-soft" />
-                <Sparkles 
-                  className="absolute top-1/2 -left-8 w-5 h-5 text-pink-400 animate-float" 
-                  style={{ animationDelay: '-1s' }}
-                />
-              </animated.div>
+                </animated.div>
+              )}
 
               {/* Hover instruction */}
               <p className="mt-8 text-sm text-[hsl(var(--color-text-muted))] text-center">
-                เลื่อนเมาส์ไปบนตัวละครเพื่อดูการหมุน
+                {viewMode === '3d' ? '🖱️ ลากเพื่อหมุนตัวละคร' : 'เลื่อนเมาส์ไปบนตัวละครเพื่อดูการหมุน'}
               </p>
             </div>
           </AnimatedCard>

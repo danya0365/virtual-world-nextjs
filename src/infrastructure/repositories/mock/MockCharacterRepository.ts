@@ -76,6 +76,23 @@ export const CHARACTER_COLORS = [
   { id: 'purple', color: '#dda0dd', name: 'ม่วง' },
 ];
 
+// Available eye styles
+export const EYE_STYLES = [
+  { id: 'normal', name: 'ปกติ', preview: '👀' },
+  { id: 'happy', name: 'มีความสุข', preview: '😊' },
+  { id: 'cool', name: 'เท่', preview: '😎' },
+  { id: 'sleepy', name: 'ง่วง', preview: '😴' },
+];
+
+// Available accessories
+export const ACCESSORIES = [
+  { id: 'crown', name: 'มงกุฎ', icon: '👑' },
+  { id: 'hat', name: 'หมวก', icon: '🎩' },
+  { id: 'bow', name: 'โบว์', icon: '🎀' },
+  { id: 'wings', name: 'ปีก', icon: '🦋' },
+  { id: 'star', name: 'ดาว', icon: '⭐' },
+];
+
 export class MockCharacterRepository implements ICharacterRepository {
   private characters: Character[] = [...MOCK_CHARACTERS];
 

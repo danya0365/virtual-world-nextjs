@@ -3,16 +3,27 @@
 import { ACCESSORIES, CHARACTER_COLORS, EYE_STYLES } from '@/src/infrastructure/repositories/mock/MockCharacterRepository';
 import { AnimatedButton } from '@/src/presentation/components/common/AnimatedButton';
 import { AnimatedCard } from '@/src/presentation/components/common/AnimatedCard';
+import { GlassPanel } from '@/src/presentation/components/common/GlassPanel';
 import { animated, config, useSpring } from '@react-spring/web';
 import {
     ArrowLeft,
-    Check, Palette,
+    Box,
+    Check,
+    Layers,
+    Palette,
     Sparkles,
     User
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
+
+// Lazy load 3D component
+const Character3D = lazy(() => 
+  import('@/src/presentation/components/3d/Character3D').then(mod => ({ default: mod.Character3D }))
+);
+
+type ViewMode = 'css' | '3d';
 
 export function CharacterCreateView() {
   const router = useRouter();
@@ -22,6 +33,7 @@ export function CharacterCreateView() {
   const [selectedColor, setSelectedColor] = useState('white');
   const [selectedEye, setSelectedEye] = useState('normal');
   const [selectedAccessory, setSelectedAccessory] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('css');
 
   // Page animation
   const pageSpring = useSpring({
@@ -49,23 +61,54 @@ export function CharacterCreateView() {
     return true;
   };
 
+  const currentColor = CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0';
+  const accessoryId = selectedAccessory;
+
   return (
     <animated.div style={pageSpring} className="min-h-[calc(100vh-12rem)] flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/character">
-          <button className="p-3 rounded-xl glass hover:bg-[hsl(var(--color-primary)/0.1)] transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        </Link>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--color-text-primary))]">
-            {step === 1 ? 'ตั้งชื่อตัวละคร' : step === 2 ? 'เลือกหน้าตา' : 'เลือกเครื่องประดับ'}
-          </h1>
-          <p className="text-[hsl(var(--color-text-secondary))]">
-            ขั้นตอนที่ {step} จาก 3
-          </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Link href="/character">
+            <button className="p-3 rounded-xl glass hover:bg-[hsl(var(--color-primary)/0.1)] transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          </Link>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[hsl(var(--color-text-primary))]">
+              {step === 1 ? 'ตั้งชื่อตัวละคร' : step === 2 ? 'เลือกหน้าตา' : 'เลือกเครื่องประดับ'}
+            </h1>
+            <p className="text-[hsl(var(--color-text-secondary))]">
+              ขั้นตอนที่ {step} จาก 3
+            </p>
+          </div>
         </div>
+
+        {/* View Mode Toggle */}
+        <GlassPanel padding="none" className="flex rounded-xl overflow-hidden">
+          <button
+            onClick={() => setViewMode('css')}
+            className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+              ${viewMode === 'css' 
+                ? 'bg-[hsl(var(--color-primary))] text-white' 
+                : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+              }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span className="text-sm font-medium">CSS</span>
+          </button>
+          <button
+            onClick={() => setViewMode('3d')}
+            className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+              ${viewMode === '3d' 
+                ? 'bg-[hsl(var(--color-primary))] text-white' 
+                : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+              }`}
+          >
+            <Box className="w-4 h-4" />
+            <span className="text-sm font-medium">3D</span>
+          </button>
+        </GlassPanel>
       </div>
 
       {/* Progress Bar */}
@@ -81,11 +124,26 @@ export function CharacterCreateView() {
         {/* Character Preview */}
         <AnimatedCard variant="gradient" className="h-[400px] p-6">
           <div className="h-full flex flex-col items-center justify-center">
-            <CharacterPreview 
-              color={selectedColor}
-              eyeStyle={selectedEye}
-              accessory={selectedAccessory}
-            />
+            {viewMode === '3d' ? (
+              <Suspense fallback={
+                <div className="flex items-center justify-center h-64 w-full">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-[hsl(var(--color-primary))] border-t-transparent" />
+                </div>
+              }>
+                <div className="w-full h-64">
+                  <Character3D 
+                    color={currentColor}
+                    accessories={accessoryId ? [accessoryId] : []}
+                  />
+                </div>
+              </Suspense>
+            ) : (
+              <CharacterPreview 
+                color={selectedColor}
+                eyeStyle={selectedEye}
+                accessory={selectedAccessory}
+              />
+            )}
             {displayName && (
               <div className="mt-6 text-center">
                 <h3 className="text-xl font-bold text-[hsl(var(--color-text-primary))]">
@@ -94,6 +152,9 @@ export function CharacterCreateView() {
                 <p className="text-sm text-[hsl(var(--color-text-muted))]">@{characterName || '...'}</p>
               </div>
             )}
+            <p className="text-xs text-[hsl(var(--color-text-muted))] mt-2">
+              {viewMode === '3d' ? '🖱️ ลากเพื่อหมุนตัวละคร' : ''}
+            </p>
           </div>
         </AnimatedCard>
 
@@ -166,15 +227,6 @@ interface CharacterPreviewProps {
 function CharacterPreview({ color, eyeStyle, accessory }: CharacterPreviewProps) {
   const colorValue = CHARACTER_COLORS.find(c => c.id === color)?.color || '#e8e8f0';
   const accessoryIcon = ACCESSORIES.find(a => a.id === accessory)?.icon;
-
-  const getEyeStyle = () => {
-    switch (eyeStyle) {
-      case 'happy': return { left: '•◡', right: '◡•' };
-      case 'cool': return { left: '−', right: '−' };
-      case 'sleepy': return { left: '−', right: '−' };
-      default: return { left: '●', right: '●' };
-    }
-  };
 
   return (
     <div className="relative w-48 h-56" style={{ filter: 'drop-shadow(0 20px 40px rgba(100, 100, 200, 0.3))' }}>

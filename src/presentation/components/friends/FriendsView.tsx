@@ -5,8 +5,10 @@ import { AnimatedCard } from '@/src/presentation/components/common/AnimatedCard'
 import { GlassPanel } from '@/src/presentation/components/common/GlassPanel';
 import { animated, config, useSpring } from '@react-spring/web';
 import {
+    Box,
     Check,
     Clock,
+    Layers,
     MessageCircle,
     MoreHorizontal,
     Search,
@@ -15,13 +17,19 @@ import {
     Users,
     X
 } from 'lucide-react';
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
+
+// Lazy load 3D component
+const FriendAvatar3D = lazy(() => 
+  import('@/src/presentation/components/3d/FriendAvatar3D').then(mod => ({ default: mod.FriendAvatar3D }))
+);
 
 interface Friend {
   id: string;
   name: string;
   displayName: string;
   avatar: string;
+  avatarColor?: string;
   level: number;
   status: 'online' | 'offline' | 'playing';
   currentGame?: string;
@@ -34,24 +42,25 @@ interface FriendRequest {
   name: string;
   displayName: string;
   avatar: string;
+  avatarColor?: string;
   level: number;
   mutualFriends: number;
 }
 
 const FRIENDS: Friend[] = [
-  { id: '1', name: 'sakura_chan', displayName: 'Sakura', avatar: '🌸', level: 12, status: 'online', isFavorite: true },
-  { id: '2', name: 'dragon_master', displayName: 'Dragon', avatar: '🐉', level: 25, status: 'playing', currentGame: 'ถ้ำคริสตัล' },
-  { id: '3', name: 'moon_rabbit', displayName: 'Moon', avatar: '🐰', level: 8, status: 'online' },
-  { id: '4', name: 'star_gazer', displayName: 'Star', avatar: '⭐', level: 15, status: 'playing', currentGame: 'ป่ามหัศจรรย์', isFavorite: true },
-  { id: '5', name: 'ninja_shadow', displayName: 'Ninja', avatar: '🥷', level: 20, status: 'offline', lastSeen: '2 ชม. ที่แล้ว' },
-  { id: '6', name: 'crystal_heart', displayName: 'Crystal', avatar: '💎', level: 10, status: 'offline', lastSeen: '1 วัน ที่แล้ว' },
-  { id: '7', name: 'fire_phoenix', displayName: 'Phoenix', avatar: '🔥', level: 30, status: 'online', isFavorite: true },
-  { id: '8', name: 'ice_queen', displayName: 'Ice', avatar: '❄️', level: 18, status: 'playing', currentGame: 'อาณาจักรน้ำแข็ง' },
+  { id: '1', name: 'sakura_chan', displayName: 'Sakura', avatar: '🌸', avatarColor: '#f472b6', level: 12, status: 'online', isFavorite: true },
+  { id: '2', name: 'dragon_master', displayName: 'Dragon', avatar: '🐉', avatarColor: '#22c55e', level: 25, status: 'playing', currentGame: 'ถ้ำคริสตัล' },
+  { id: '3', name: 'moon_rabbit', displayName: 'Moon', avatar: '🐰', avatarColor: '#a78bfa', level: 8, status: 'online' },
+  { id: '4', name: 'star_gazer', displayName: 'Star', avatar: '⭐', avatarColor: '#fbbf24', level: 15, status: 'playing', currentGame: 'ป่ามหัศจรรย์', isFavorite: true },
+  { id: '5', name: 'ninja_shadow', displayName: 'Ninja', avatar: '🥷', avatarColor: '#6366f1', level: 20, status: 'offline', lastSeen: '2 ชม. ที่แล้ว' },
+  { id: '6', name: 'crystal_heart', displayName: 'Crystal', avatar: '💎', avatarColor: '#67e8f9', level: 10, status: 'offline', lastSeen: '1 วัน ที่แล้ว' },
+  { id: '7', name: 'fire_phoenix', displayName: 'Phoenix', avatar: '🔥', avatarColor: '#f97316', level: 30, status: 'online', isFavorite: true },
+  { id: '8', name: 'ice_queen', displayName: 'Ice', avatar: '❄️', avatarColor: '#bae6fd', level: 18, status: 'playing', currentGame: 'อาณาจักรน้ำแข็ง' },
 ];
 
 const FRIEND_REQUESTS: FriendRequest[] = [
-  { id: '1', name: 'new_player_01', displayName: 'NewPlayer', avatar: '🌟', level: 3, mutualFriends: 2 },
-  { id: '2', name: 'happy_bunny', displayName: 'Bunny', avatar: '🐇', level: 7, mutualFriends: 5 },
+  { id: '1', name: 'new_player_01', displayName: 'NewPlayer', avatar: '🌟', avatarColor: '#fde047', level: 3, mutualFriends: 2 },
+  { id: '2', name: 'happy_bunny', displayName: 'Bunny', avatar: '🐇', avatarColor: '#f9a8d4', level: 7, mutualFriends: 5 },
 ];
 
 const statusColors = {
@@ -60,18 +69,14 @@ const statusColors = {
   playing: 'bg-blue-500',
 };
 
-const statusLabels = {
-  online: 'ออนไลน์',
-  offline: 'ออฟไลน์',
-  playing: 'กำลังเล่น',
-};
-
 type Tab = 'friends' | 'requests' | 'find';
+type ViewMode = 'css' | '3d';
 
 export function FriendsView() {
   const [activeTab, setActiveTab] = useState<Tab>('friends');
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'online' | 'favorite'>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('css');
 
   // Title animation
   const titleSpring = useSpring({
@@ -107,13 +112,41 @@ export function FriendsView() {
           </p>
         </div>
 
-        {/* Friend Request Badge */}
-        {FRIEND_REQUESTS.length > 0 && (
-          <GlassPanel padding="sm" className="flex items-center gap-2">
-            <UserPlus className="w-5 h-5 text-[hsl(var(--color-primary))]" />
-            <span className="font-semibold">{FRIEND_REQUESTS.length} คำขอเป็นเพื่อน</span>
+        <div className="flex gap-3">
+          {/* View Mode Toggle */}
+          <GlassPanel padding="none" className="flex rounded-xl overflow-hidden">
+            <button
+              onClick={() => setViewMode('css')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === 'css' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span className="text-sm font-medium">CSS</span>
+            </button>
+            <button
+              onClick={() => setViewMode('3d')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === '3d' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                }`}
+            >
+              <Box className="w-4 h-4" />
+              <span className="text-sm font-medium">3D</span>
+            </button>
           </GlassPanel>
-        )}
+
+          {/* Friend Request Badge */}
+          {FRIEND_REQUESTS.length > 0 && (
+            <GlassPanel padding="sm" className="flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-[hsl(var(--color-primary))]" />
+              <span className="font-semibold">{FRIEND_REQUESTS.length} คำขอ</span>
+            </GlassPanel>
+          )}
+        </div>
       </animated.div>
 
       {/* Tabs */}
@@ -152,11 +185,12 @@ export function FriendsView() {
           setSearchQuery={setSearchQuery}
           filter={filter}
           setFilter={setFilter}
+          viewMode={viewMode}
         />
       )}
 
       {activeTab === 'requests' && (
-        <RequestsTab requests={FRIEND_REQUESTS} />
+        <RequestsTab requests={FRIEND_REQUESTS} viewMode={viewMode} />
       )}
 
       {activeTab === 'find' && (
@@ -172,9 +206,10 @@ interface FriendsTabProps {
   setSearchQuery: (q: string) => void;
   filter: 'all' | 'online' | 'favorite';
   setFilter: (f: 'all' | 'online' | 'favorite') => void;
+  viewMode: ViewMode;
 }
 
-function FriendsTab({ friends, searchQuery, setSearchQuery, filter, setFilter }: FriendsTabProps) {
+function FriendsTab({ friends, searchQuery, setSearchQuery, filter, setFilter, viewMode }: FriendsTabProps) {
   return (
     <>
       {/* Search & Filter */}
@@ -212,7 +247,7 @@ function FriendsTab({ friends, searchQuery, setSearchQuery, filter, setFilter }:
       {/* Friends List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {friends.map((friend, index) => (
-          <FriendCard key={friend.id} friend={friend} delay={index * 50} />
+          <FriendCard key={friend.id} friend={friend} delay={index * 50} viewMode={viewMode} />
         ))}
       </div>
 
@@ -228,9 +263,10 @@ function FriendsTab({ friends, searchQuery, setSearchQuery, filter, setFilter }:
 interface FriendCardProps {
   friend: Friend;
   delay: number;
+  viewMode: ViewMode;
 }
 
-function FriendCard({ friend, delay }: FriendCardProps) {
+function FriendCard({ friend, delay, viewMode }: FriendCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const spring = useSpring({
@@ -248,10 +284,23 @@ function FriendCard({ friend, delay }: FriendCardProps) {
         <div className="flex items-start gap-3">
           {/* Avatar */}
           <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-blue-500
-                          flex items-center justify-center text-2xl shadow-lg">
-              {friend.avatar}
-            </div>
+            {viewMode === '3d' ? (
+              <Suspense fallback={
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-blue-500
+                              flex items-center justify-center text-2xl shadow-lg">
+                  {friend.avatar}
+                </div>
+              }>
+                <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg">
+                  <FriendAvatar3D color={friend.avatarColor} status={friend.status} />
+                </div>
+              </Suspense>
+            ) : (
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-blue-500
+                            flex items-center justify-center text-2xl shadow-lg">
+                {friend.avatar}
+              </div>
+            )}
             {/* Status indicator */}
             <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white
                           ${statusColors[friend.status]}`} />
@@ -317,18 +366,32 @@ function FriendCard({ friend, delay }: FriendCardProps) {
 
 interface RequestsTabProps {
   requests: FriendRequest[];
+  viewMode: ViewMode;
 }
 
-function RequestsTab({ requests }: RequestsTabProps) {
+function RequestsTab({ requests, viewMode }: RequestsTabProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {requests.map((request, index) => (
         <AnimatedCard key={request.id} delay={index * 50} variant="glass" className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-400 to-teal-500
-                          flex items-center justify-center text-2xl shadow-lg">
-              {request.avatar}
-            </div>
+            {viewMode === '3d' ? (
+              <Suspense fallback={
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-400 to-teal-500
+                              flex items-center justify-center text-2xl shadow-lg">
+                  {request.avatar}
+                </div>
+              }>
+                <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg">
+                  <FriendAvatar3D color={request.avatarColor} status="online" />
+                </div>
+              </Suspense>
+            ) : (
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-400 to-teal-500
+                            flex items-center justify-center text-2xl shadow-lg">
+                {request.avatar}
+              </div>
+            )}
 
             <div className="flex-1">
               <h3 className="font-bold text-[hsl(var(--color-text-primary))]">
