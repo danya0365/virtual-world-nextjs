@@ -5,13 +5,21 @@ import { AnimatedCard } from '@/src/presentation/components/common/AnimatedCard'
 import { GlassPanel } from '@/src/presentation/components/common/GlassPanel';
 import { animated, config, useSpring } from '@react-spring/web';
 import {
+    Box,
     Check,
     Coins, Gem,
+    Layers,
     Search,
     ShoppingBag,
-    ShoppingCart
+    ShoppingCart,
+    X
 } from 'lucide-react';
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
+
+// Lazy load 3D component
+const ShopItem3D = lazy(() => 
+  import('@/src/presentation/components/3d/ShopItem3D').then(mod => ({ default: mod.ShopItem3D }))
+);
 
 interface ShopItem {
   id: string;
@@ -65,10 +73,14 @@ const rarityLabels = {
   legendary: 'ตำนาน',
 };
 
+type ViewMode = 'css' | '3d';
+
 export function ShopView() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>('css');
+  const [previewItem, setPreviewItem] = useState<ShopItem | null>(null);
 
   // Title animation
   const titleSpring = useSpring({
@@ -117,8 +129,34 @@ export function ShopView() {
           </p>
         </div>
 
-        {/* Balance */}
-        <div className="flex gap-4">
+        <div className="flex gap-3">
+          {/* View Mode Toggle */}
+          <GlassPanel padding="none" className="flex rounded-xl overflow-hidden">
+            <button
+              onClick={() => setViewMode('css')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === 'css' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span className="text-sm font-medium">CSS</span>
+            </button>
+            <button
+              onClick={() => setViewMode('3d')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === '3d' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                }`}
+            >
+              <Box className="w-4 h-4" />
+              <span className="text-sm font-medium">3D</span>
+            </button>
+          </GlassPanel>
+
+          {/* Balance */}
           <GlassPanel padding="sm" className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-yellow-500" />
             <span className="font-bold">163</span>
@@ -204,6 +242,8 @@ export function ShopView() {
             delay={index * 50}
             inCart={cart.includes(item.id)}
             onToggleCart={() => toggleCart(item.id)}
+            viewMode={viewMode}
+            onPreview={() => viewMode === '3d' && setPreviewItem(item)}
           />
         ))}
       </div>
@@ -212,6 +252,16 @@ export function ShopView() {
         <div className="text-center py-12">
           <p className="text-[hsl(var(--color-text-muted))]">ไม่พบไอเท็มที่ค้นหา</p>
         </div>
+      )}
+
+      {/* 3D Preview Modal */}
+      {previewItem && (
+        <ItemPreviewModal 
+          item={previewItem} 
+          onClose={() => setPreviewItem(null)}
+          inCart={cart.includes(previewItem.id)}
+          onToggleCart={() => toggleCart(previewItem.id)}
+        />
       )}
     </div>
   );
@@ -222,9 +272,11 @@ interface ShopItemCardProps {
   delay: number;
   inCart: boolean;
   onToggleCart: () => void;
+  viewMode: ViewMode;
+  onPreview: () => void;
 }
 
-function ShopItemCard({ item, delay, inCart, onToggleCart }: ShopItemCardProps) {
+function ShopItemCard({ item, delay, inCart, onToggleCart, viewMode, onPreview }: ShopItemCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const spring = useSpring({
@@ -239,6 +291,7 @@ function ShopItemCard({ item, delay, inCart, onToggleCart }: ShopItemCardProps) 
   return (
     <animated.div
       style={spring}
+      onClick={onPreview}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`glass rounded-2xl overflow-hidden cursor-pointer relative
@@ -263,10 +316,27 @@ function ShopItemCard({ item, delay, inCart, onToggleCart }: ShopItemCardProps) 
         )}
       </div>
 
+      {/* 3D badge in 3D mode */}
+      {viewMode === '3d' && (
+        <div className="absolute top-2 right-2 z-10">
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[hsl(var(--color-primary))] text-white flex items-center gap-1">
+            <Box className="w-3 h-3" /> 3D
+          </span>
+        </div>
+      )}
+
       {/* Item Image */}
       <div className={`h-28 flex items-center justify-center text-5xl
                       bg-gradient-to-br ${rarityColors[item.rarity]}/20`}>
-        {item.icon}
+        {viewMode === '3d' ? (
+          <Suspense fallback={<span className="text-5xl">{item.icon}</span>}>
+            <div className="w-full h-full">
+              <ShopItem3D itemType={item.category} rarity={item.rarity} />
+            </div>
+          </Suspense>
+        ) : (
+          item.icon
+        )}
       </div>
 
       {/* Item Info */}
@@ -319,5 +389,106 @@ function ShopItemCard({ item, delay, inCart, onToggleCart }: ShopItemCardProps) 
         </div>
       </div>
     </animated.div>
+  );
+}
+
+interface ItemPreviewModalProps {
+  item: ShopItem;
+  onClose: () => void;
+  inCart: boolean;
+  onToggleCart: () => void;
+}
+
+function ItemPreviewModal({ item, onClose, inCart, onToggleCart }: ItemPreviewModalProps) {
+  const modalSpring = useSpring({
+    from: { opacity: 0, scale: 0.9 },
+    to: { opacity: 1, scale: 1 },
+    config: config.gentle,
+  });
+
+  const finalPrice = item.isSale && item.salePercent 
+    ? Math.floor(item.price * (1 - item.salePercent / 100))
+    : item.price;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <animated.div 
+        style={modalSpring}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg"
+      >
+        <GlassPanel className="p-6">
+          {/* Close button */}
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-lg glass hover:bg-[hsl(var(--color-primary)/0.1)]"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* 3D Preview */}
+          <div className={`h-64 rounded-xl overflow-hidden mb-4 bg-gradient-to-br ${rarityColors[item.rarity]}/20`}>
+            <Suspense fallback={
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-[hsl(var(--color-primary))] border-t-transparent" />
+              </div>
+            }>
+              <ShopItem3D itemType={item.category} rarity={item.rarity} />
+            </Suspense>
+          </div>
+
+          {/* Info */}
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <h2 className="text-2xl font-bold text-[hsl(var(--color-text-primary))]">{item.name}</h2>
+              <p className="text-[hsl(var(--color-text-secondary))]">{item.description}</p>
+            </div>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium text-white
+                            bg-gradient-to-r ${rarityColors[item.rarity]}`}>
+              {rarityLabels[item.rarity]}
+            </span>
+          </div>
+
+          {/* Price and Actions */}
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2">
+              {item.currency === 'coins' ? (
+                <Coins className="w-6 h-6 text-yellow-500" />
+              ) : (
+                <Gem className="w-6 h-6 text-pink-500" />
+              )}
+              {item.isSale ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-bold">{finalPrice}</span>
+                  <span className="text-lg line-through text-[hsl(var(--color-text-muted))]">
+                    {item.price}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-2xl font-bold">{item.price}</span>
+              )}
+            </div>
+
+            {!item.owned && (
+              <AnimatedButton 
+                variant={inCart ? 'ghost' : 'primary'} 
+                size="lg"
+                onClick={onToggleCart}
+                icon={inCart ? <Check className="w-5 h-5" /> : <ShoppingCart className="w-5 h-5" />}
+              >
+                {inCart ? 'เพิ่มแล้ว' : 'เพิ่มลงตะกร้า'}
+              </AnimatedButton>
+            )}
+          </div>
+
+          <p className="text-xs text-[hsl(var(--color-text-muted))] mt-4 text-center">
+            🖱️ ลาก/หมุนเพื่อดูรอบด้าน
+          </p>
+        </GlassPanel>
+      </animated.div>
+    </div>
   );
 }

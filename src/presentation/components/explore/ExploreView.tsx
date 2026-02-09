@@ -3,14 +3,20 @@
 import { AnimatedButton } from '@/src/presentation/components/common/AnimatedButton';
 import { GlassPanel } from '@/src/presentation/components/common/GlassPanel';
 import { animated, config, useSpring, useTrail } from '@react-spring/web';
-import { Globe, Lock, MapPin, Play, Sparkles, Star, Users } from 'lucide-react';
-import { useState } from 'react';
+import { Box, Globe, Layers, Lock, MapPin, Play, Sparkles, Star, Users } from 'lucide-react';
+import { Suspense, lazy, useState } from 'react';
+
+// Lazy load 3D component
+const WorldPreview3D = lazy(() => 
+  import('@/src/presentation/components/3d/WorldPreview3D').then(mod => ({ default: mod.WorldPreview3D }))
+);
 
 interface WorldZone {
   id: string;
   name: string;
   description: string;
   image: string;
+  worldType: 'meadow' | 'crystal' | 'forest' | 'floating' | 'volcano' | 'ice';
   difficulty: 'easy' | 'medium' | 'hard';
   players: number;
   isLocked: boolean;
@@ -27,6 +33,7 @@ const WORLD_ZONES: WorldZone[] = [
     name: 'ทุ่งหญ้าเขียวขจี',
     description: 'โลกแห่งการเริ่มต้น สำหรับผู้เล่นใหม่',
     image: '🌿',
+    worldType: 'meadow',
     difficulty: 'easy',
     players: 234,
     isLocked: false,
@@ -38,6 +45,7 @@ const WORLD_ZONES: WorldZone[] = [
     name: 'ถ้ำคริสตัล',
     description: 'สำรวจถ้ำลึกลับเต็มไปด้วยคริสตัลวิเศษ',
     image: '💎',
+    worldType: 'crystal',
     difficulty: 'easy',
     players: 156,
     isLocked: false,
@@ -49,6 +57,7 @@ const WORLD_ZONES: WorldZone[] = [
     name: 'ป่ามหัศจรรย์',
     description: 'ป่าเวทมนตร์ เต็มไปด้วยสิ่งมีชีวิตลึกลับ',
     image: '🌲',
+    worldType: 'forest',
     difficulty: 'medium',
     players: 89,
     isLocked: false,
@@ -60,6 +69,7 @@ const WORLD_ZONES: WorldZone[] = [
     name: 'เกาะลอยฟ้า',
     description: 'เกาะลอยอยู่กลางท้องฟ้า วิวสวยมาก',
     image: '☁️',
+    worldType: 'floating',
     difficulty: 'medium',
     players: 67,
     isLocked: false,
@@ -71,6 +81,7 @@ const WORLD_ZONES: WorldZone[] = [
     name: 'ดินแดนภูเขาไฟ',
     description: 'ดินแดนร้อนระอุ ท้าทายความกล้า',
     image: '🌋',
+    worldType: 'volcano',
     difficulty: 'hard',
     players: 45,
     isLocked: true,
@@ -82,6 +93,7 @@ const WORLD_ZONES: WorldZone[] = [
     name: 'อาณาจักรน้ำแข็ง',
     description: 'อาณาจักรหิมะที่หนาวเหน็บ',
     image: '❄️',
+    worldType: 'ice',
     difficulty: 'hard',
     players: 32,
     isLocked: true,
@@ -102,9 +114,12 @@ const difficultyLabels = {
   hard: 'ยาก',
 };
 
+type ViewMode = 'css' | '3d';
+
 export function ExploreView() {
   const [selectedZone, setSelectedZone] = useState<WorldZone | null>(null);
   const [filter, setFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('css');
 
   // Title animation
   const titleSpring = useSpring({
@@ -138,21 +153,49 @@ export function ExploreView() {
           </p>
         </div>
 
-        {/* Filter buttons */}
-        <div className="flex gap-2">
-          {(['all', 'easy', 'medium', 'hard'] as const).map((f) => (
+        <div className="flex gap-3">
+          {/* View Mode Toggle */}
+          <GlassPanel padding="none" className="flex rounded-xl overflow-hidden">
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
-                ${filter === f 
-                  ? 'bg-[hsl(var(--color-primary))] text-white shadow-lg' 
-                  : 'glass text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+              onClick={() => setViewMode('css')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === 'css' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
                 }`}
             >
-              {f === 'all' ? 'ทั้งหมด' : difficultyLabels[f]}
+              <Layers className="w-4 h-4" />
+              <span className="text-sm font-medium">CSS</span>
             </button>
-          ))}
+            <button
+              onClick={() => setViewMode('3d')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === '3d' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                }`}
+            >
+              <Box className="w-4 h-4" />
+              <span className="text-sm font-medium">3D</span>
+            </button>
+          </GlassPanel>
+
+          {/* Filter buttons */}
+          <div className="flex gap-2">
+            {(['all', 'easy', 'medium', 'hard'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
+                  ${filter === f 
+                    ? 'bg-[hsl(var(--color-primary))] text-white shadow-lg' 
+                    : 'glass text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                  }`}
+              >
+                {f === 'all' ? 'ทั้งหมด' : difficultyLabels[f]}
+              </button>
+            ))}
+          </div>
         </div>
       </animated.div>
 
@@ -166,6 +209,7 @@ export function ExploreView() {
                 zone={zone} 
                 onClick={() => setSelectedZone(zone)}
                 isSelected={selectedZone?.id === zone.id}
+                viewMode={viewMode}
               />
             </animated.div>
           );
@@ -177,6 +221,7 @@ export function ExploreView() {
         <ZoneDetails 
           zone={selectedZone} 
           onClose={() => setSelectedZone(null)} 
+          viewMode={viewMode}
         />
       )}
     </div>
@@ -187,9 +232,10 @@ interface WorldCardProps {
   zone: WorldZone;
   onClick: () => void;
   isSelected: boolean;
+  viewMode: ViewMode;
 }
 
-function WorldCard({ zone, onClick, isSelected }: WorldCardProps) {
+function WorldCard({ zone, onClick, isSelected, viewMode }: WorldCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const spring = useSpring({
@@ -211,12 +257,29 @@ function WorldCard({ zone, onClick, isSelected }: WorldCardProps) {
         ${zone.isLocked ? 'opacity-70' : ''}`}
     >
       {/* Zone Image */}
-      <div className={`h-32 flex items-center justify-center text-6xl
+      <div className={`h-32 flex items-center justify-center relative overflow-hidden
                       bg-gradient-to-br ${difficultyColors[zone.difficulty]}/20`}>
-        {zone.image}
+        {viewMode === '3d' ? (
+          <Suspense fallback={<span className="text-6xl">{zone.image}</span>}>
+            <div className="absolute inset-0">
+              <WorldPreview3D worldType={zone.worldType} />
+            </div>
+          </Suspense>
+        ) : (
+          <span className="text-6xl">{zone.image}</span>
+        )}
+        
         {zone.isLocked && (
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
             <Lock className="w-10 h-10 text-white" />
+          </div>
+        )}
+
+        {viewMode === '3d' && (
+          <div className="absolute top-2 right-2 z-10">
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[hsl(var(--color-primary))] text-white flex items-center gap-1">
+              <Box className="w-3 h-3" /> 3D
+            </span>
           </div>
         )}
       </div>
@@ -263,9 +326,10 @@ function WorldCard({ zone, onClick, isSelected }: WorldCardProps) {
 interface ZoneDetailsProps {
   zone: WorldZone;
   onClose: () => void;
+  viewMode: ViewMode;
 }
 
-function ZoneDetails({ zone, onClose }: ZoneDetailsProps) {
+function ZoneDetails({ zone, onClose, viewMode }: ZoneDetailsProps) {
   const spring = useSpring({
     from: { opacity: 0, y: 20 },
     to: { opacity: 1, y: 0 },
@@ -276,10 +340,16 @@ function ZoneDetails({ zone, onClose }: ZoneDetailsProps) {
     <animated.div style={spring}>
       <GlassPanel className="p-6">
         <div className="flex flex-col sm:flex-row gap-6">
-          {/* Zone Icon */}
-          <div className={`w-32 h-32 rounded-2xl flex items-center justify-center text-6xl
-                          bg-gradient-to-br ${difficultyColors[zone.difficulty]}/20 shrink-0`}>
-            {zone.image}
+          {/* Zone Preview */}
+          <div className={`w-full sm:w-48 h-48 rounded-2xl flex items-center justify-center overflow-hidden shrink-0
+                          bg-gradient-to-br ${difficultyColors[zone.difficulty]}/20`}>
+            {viewMode === '3d' ? (
+              <Suspense fallback={<span className="text-6xl">{zone.image}</span>}>
+                <WorldPreview3D worldType={zone.worldType} />
+              </Suspense>
+            ) : (
+              <span className="text-6xl">{zone.image}</span>
+            )}
           </div>
 
           {/* Zone Info */}
