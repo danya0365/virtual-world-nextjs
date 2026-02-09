@@ -19,17 +19,32 @@ export const siteConfig = {
   // Theme
   defaultTheme: 'light' as const,
   
-  // Navigation
+  // Navigation (Primary + Extended)
   navigation: [
+    // Primary Tabs (shown in bottom bar)
     { name: 'หน้าแรก', href: '/', icon: 'Home' },
     { name: 'สำรวจโลก', href: '/explore', icon: 'Globe' },
+    { name: 'เกม', href: '/games', icon: 'Gamepad2' },
+    { name: 'เพื่อน', href: '/friends', icon: 'Users' },
+    // Secondary Navigation (in More menu)
     { name: 'ตัวละคร', href: '/character', icon: 'User' },
     { name: 'กระเป๋า', href: '/inventory', icon: 'Backpack' },
     { name: 'ร้านค้า', href: '/shop', icon: 'ShoppingBag' },
-    { name: 'เพื่อน', href: '/friends', icon: 'Users' },
     { name: 'แชท', href: '/chat', icon: 'MessageCircle' },
     { name: 'ความสำเร็จ', href: '/achievements', icon: 'Trophy' },
-    { name: 'เกม', href: '/games', icon: 'Gamepad2' },
+    // New World-Class Features
+    { name: 'รางวัลรายวัน', href: '/daily', icon: 'Gift' },
+    { name: 'อีเวนต์', href: '/events', icon: 'PartyPopper' },
+    { name: 'ภารกิจ', href: '/quests', icon: 'ScrollText' },
+    { name: 'บ้านของฉัน', href: '/house', icon: 'Home' },
+    { name: 'ปาร์ตี้', href: '/party', icon: 'Users' },
+    { name: 'อันดับ', href: '/leaderboard', icon: 'Trophy' },
+    { name: 'ตลาดซื้อขาย', href: '/trading', icon: 'ShoppingBag' },
+    { name: 'กิลด์', href: '/guilds', icon: 'Shield' },
+    { name: 'แผนที่โลก', href: '/map', icon: 'Map' },
+    { name: 'VIP', href: '/vip', icon: 'Crown' },
+    // Additional Features
+    { name: 'สถิติของฉัน', href: '/profile', icon: 'ChartBar' },
   ],
 
   

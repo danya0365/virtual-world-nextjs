@@ -4,16 +4,23 @@ import { siteConfig } from '@/src/config/site.config';
 import { animated, config, useSpring } from '@react-spring/web';
 import {
   Backpack,
+  BarChart2,
+  Crown,
   Gamepad2,
+  Gift,
   Globe,
   Home,
+  Map,
   MessageCircle,
   MoreHorizontal,
+  PartyPopper,
+  ScrollText,
+  Shield,
   ShoppingBag,
   Trophy,
   User,
   Users,
-  X,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -30,6 +37,13 @@ const iconMap: Record<string, React.ElementType> = {
   Backpack,
   Trophy,
   Gamepad2,
+  Gift,
+  PartyPopper,
+  ScrollText,
+  Map,
+  Shield,
+  Crown,
+  ChartBar: BarChart2,
 };
 
 // Primary tabs shown in bottom bar (4 items)
