@@ -2,26 +2,28 @@
 
 /**
  * Sound Settings Panel - Full audio control UI
+ * Uses createPortal to render at document.body level for proper z-index handling
  */
 
 import { bgmGenerator, BGMTrack } from '@/src/infrastructure/sound/BGMGenerator';
 import { sfxGenerator } from '@/src/infrastructure/sound/SFXGenerator';
 import {
-    AVAILABLE_BGM_TRACKS,
-    SceneType,
-    useSoundStore
+  AVAILABLE_BGM_TRACKS,
+  SceneType,
+  useSoundStore
 } from '@/src/stores/soundStore';
 import { animated, config, useSpring, useTransition } from '@react-spring/web';
 import {
-    Music,
-    Music2,
-    RefreshCw,
-    Settings,
-    Volume2,
-    VolumeX,
-    X
+  Music,
+  Music2,
+  RefreshCw,
+  Settings,
+  Volume2,
+  VolumeX,
+  X
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useSoundContext } from './SoundProvider';
 
 // Scene labels for settings
@@ -58,6 +60,13 @@ interface SoundSettingsProps {
 export function SoundSettings({ isOpen, onClose }: SoundSettingsProps) {
   const { isInitialized, initializeSound } = useSoundContext();
   const [activeTab, setActiveTab] = useState<'volume' | 'scenes'>('volume');
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure we're on client side before rendering portal
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const {
     masterVolume,
@@ -105,21 +114,26 @@ export function SoundSettings({ isOpen, onClose }: SoundSettingsProps) {
     bgmGenerator.play(track);
   };
 
-  return transitions((style, show) =>
-    show ? (
-      <>
-        {/* Backdrop */}
-        <animated.div
-          style={{ opacity: style.opacity }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-          onClick={onClose}
-        />
+  // Don't render portal until mounted (client-side)
+  if (!mounted) return null;
 
-        {/* Panel */}
-        <animated.div
-          style={style}
-          className="fixed right-0 top-0 bottom-0 w-full max-w-md glass z-50 overflow-y-auto"
-        >
+  // Use createPortal to render at document.body level - avoids z-index stacking context issues
+  return createPortal(
+    transitions((style, show) =>
+      show ? (
+        <>
+          {/* Backdrop - very high z-index */}
+          <animated.div
+            style={{ opacity: style.opacity }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+            onClick={onClose}
+          />
+
+          {/* Panel - very high z-index */}
+          <animated.div
+            style={style}
+            className="fixed right-0 top-0 bottom-0 w-full max-w-md glass z-[9999] overflow-y-auto"
+          >
           {/* Header */}
           <div className="sticky top-0 glass p-4 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -304,6 +318,8 @@ export function SoundSettings({ isOpen, onClose }: SoundSettingsProps) {
         </animated.div>
       </>
     ) : null
+  ),
+  document.body
   );
 }
 

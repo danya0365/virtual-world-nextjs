@@ -35,6 +35,11 @@ const PROGRESSIONS = {
   social: [
     ['G3', 'B3', 'D4'], ['C4', 'E4', 'G4'], ['A3', 'C4', 'E4'], ['D3', 'F3', 'A3']
   ],
+  // 🎮 Fun menu progression - inspired by classic game themes
+  funMenu: [
+    ['C4', 'E4', 'G4'], ['C4', 'E4', 'G4'], ['G3', 'B3', 'D4'], ['G3', 'B3', 'D4'],
+    ['A3', 'C4', 'E4'], ['A3', 'C4', 'E4'], ['G3', 'B3', 'D4'], ['C4', 'E4', 'G4']
+  ],
 };
 
 // Melody patterns (intervals from root)
@@ -46,6 +51,14 @@ const MELODIES = {
   cheerful: [0, 2, 4, 5, 4, 2, 4, 0],
   calm: [0, 4, 7, 4, 2, 0, 2, 4],
   social: [0, 2, 4, 7, 5, 4, 2, 0],
+  // 🎵 16-note fun melody - Super Mario Bros. inspired! (E E _ E _ C E _ G)
+  // Pattern: Jump! Jump! Coin! Power-up! Let's-a-go!
+  funMenu: [
+    4, 4, 0, 4,    // E E rest E
+    0, 0, 4, 0,    // rest C E rest  
+    7, 0, 0, 0,    // G rest rest rest
+    5, 7, 9, 12    // F G A C (ascending excitement!)
+  ],
 };
 
 export type BGMTrack = 'menu' | 'explore' | 'games' | 'battle' | 'shop' | 'peaceful' | 'social';
@@ -61,12 +74,13 @@ interface BGMConfig {
 
 const TRACK_CONFIGS: Record<BGMTrack, BGMConfig> = {
   menu: {
-    progression: PROGRESSIONS.calm,
-    melody: MELODIES.calm,
-    tempo: 70,
-    waveform: 'sine',
-    padWaveform: 'sine',
-    bassWaveform: 'sine',
+    // 🎮 Fun menu music - upbeat and playful!
+    progression: PROGRESSIONS.funMenu,
+    melody: MELODIES.funMenu,
+    tempo: 140, // Fast and energetic!
+    waveform: 'square', // Classic 8-bit game sound
+    padWaveform: 'triangle', // Softer pad for balance
+    bassWaveform: 'square', // Punchy bass
   },
   explore: {
     progression: PROGRESSIONS.adventurous,
@@ -221,15 +235,22 @@ class BGMGenerator {
       // Play bass (root note)
       this.playBass(chord[0], barStart, barDuration, config.bassWaveform);
       
-      // Play melody notes
-      const melodyPerBar = 2;
+      // Play melody notes - adjusted for 16-note melodies
+      const melodyPerBar = config.melody.length >= 16 ? 4 : 2;
       for (let i = 0; i < melodyPerBar; i++) {
         const noteIndex = (barIndex * melodyPerBar + i) % config.melody.length;
         const interval = config.melody[noteIndex];
+        
+        // Skip rest notes (interval === 0 in context means rest for funMenu)
+        if (interval === 0 && config.melody.length >= 16) {
+          continue; // Rest - don't play note
+        }
+        
         const rootFreq = NOTES[chord[0]] || 261.63;
         const melodyFreq = rootFreq * Math.pow(2, interval / 12);
-        const noteStart = barStart + (i * beatDuration * 2);
-        this.playMelodyNote(melodyFreq, noteStart, beatDuration * 1.5, config.waveform);
+        const noteStart = barStart + (i * beatDuration);
+        const noteDuration = config.melody.length >= 16 ? beatDuration * 0.8 : beatDuration * 1.5;
+        this.playMelodyNote(melodyFreq, noteStart, noteDuration, config.waveform);
       }
     });
 
