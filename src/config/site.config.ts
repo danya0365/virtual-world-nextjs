@@ -24,9 +24,14 @@ export const siteConfig = {
     { name: 'หน้าแรก', href: '/', icon: 'Home' },
     { name: 'สำรวจโลก', href: '/explore', icon: 'Globe' },
     { name: 'ตัวละคร', href: '/character', icon: 'User' },
+    { name: 'กระเป๋า', href: '/inventory', icon: 'Backpack' },
     { name: 'ร้านค้า', href: '/shop', icon: 'ShoppingBag' },
     { name: 'เพื่อน', href: '/friends', icon: 'Users' },
+    { name: 'แชท', href: '/chat', icon: 'MessageCircle' },
+    { name: 'ความสำเร็จ', href: '/achievements', icon: 'Trophy' },
+    { name: 'เกม', href: '/games', icon: 'Gamepad2' },
   ],
+
   
   // Footer Links
   footerLinks: {

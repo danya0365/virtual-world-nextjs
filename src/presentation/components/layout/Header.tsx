@@ -1,8 +1,24 @@
 'use client';
 
 import { siteConfig } from '@/src/config/site.config';
+import {
+    NotificationBell,
+    NotificationDropdown,
+} from '@/src/presentation/components/common/NotificationDropdown';
 import { animated, useSpring } from '@react-spring/web';
-import { Globe, Home, Menu, ShoppingBag, User, Users, X } from 'lucide-react';
+import {
+    Backpack,
+    Gamepad2,
+    Globe,
+    Home,
+    Menu,
+    MessageCircle,
+    ShoppingBag,
+    Trophy,
+    User,
+    Users,
+    X,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ThemeToggle } from './ThemeToggle';
@@ -13,11 +29,17 @@ const iconMap: Record<string, React.ElementType> = {
   User,
   ShoppingBag,
   Users,
+  MessageCircle,
+  Backpack,
+  Trophy,
+  Gamepad2,
 };
+
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   // Logo animation
   const logoSpring = useSpring({
@@ -107,6 +129,15 @@ export function Header() {
                 <span className="text-xs font-medium text-[hsl(var(--color-text-secondary))]">
                   {siteConfig.defaultStats.level}/{siteConfig.defaultStats.maxLevel}
                 </span>
+              </div>
+
+              {/* Notifications */}
+              <div className="relative">
+                <NotificationBell onClick={() => setIsNotificationOpen(!isNotificationOpen)} />
+                <NotificationDropdown
+                  isOpen={isNotificationOpen}
+                  onClose={() => setIsNotificationOpen(false)}
+                />
               </div>
 
               {/* Theme Toggle */}
