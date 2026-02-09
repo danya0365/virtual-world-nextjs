@@ -2,6 +2,7 @@
 
 import { type ReactNode } from 'react';
 import { ThemeProvider } from '../providers/ThemeProvider';
+import { SoundProvider } from '../sound/SoundProvider';
 import { BottomTabBar } from './BottomTabBar';
 import { Header } from './Header';
 
@@ -12,6 +13,7 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   return (
     <ThemeProvider defaultTheme="light">
+      <SoundProvider>
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Background Decorations */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -60,6 +62,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         {/* Bottom Tab Bar - shown on all screens */}
         <BottomTabBar />
       </div>
+      </SoundProvider>
     </ThemeProvider>
   );
 }

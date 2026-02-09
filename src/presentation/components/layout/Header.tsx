@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { SoundToggle } from '../sound/SoundToggle';
 import { ThemeToggle } from './ThemeToggle';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -129,6 +130,9 @@ export function Header() {
                   onClose={() => setIsNotificationOpen(false)}
                 />
               </div>
+
+              {/* Sound Toggle */}
+              <SoundToggle />
 
               {/* Theme Toggle - hidden on mobile for cleaner look */}
               <div className="hidden sm:block">
