@@ -106,7 +106,7 @@ html {
 }
 
 body {
-  font-family: 'MiSans Thai', Arial, Helvetica, sans-serif;
+  font-family: var(--font-noto-sans-thai), sans-serif;
   background: var(--gradient-background);
   color: hsl(var(--color-text-primary));
   min-height: 100vh;

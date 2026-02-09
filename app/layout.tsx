@@ -1,6 +1,16 @@
 import '@/public/styles/index.css';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import type { Metadata } from "next";
+import { Noto_Sans_Thai } from 'next/font/google';
+
+// ✅ Next.js best practice: ใช้ next/font/google สำหรับ font optimization
+const notoSansThai = Noto_Sans_Thai({
+  subsets: ['thai', 'latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-noto-sans-thai',
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: "Virtual World | โลกเสมือนจริงสุดมหัศจรรย์",
@@ -20,16 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" 
-          rel="stylesheet" 
-        />
-      </head>
-      <body className="antialiased">
+    <html lang="th" className={notoSansThai.variable} suppressHydrationWarning>
+      <body className={`${notoSansThai.className} antialiased`}>
         <MainLayout>
           {children}
         </MainLayout>
