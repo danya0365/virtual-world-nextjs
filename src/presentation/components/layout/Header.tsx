@@ -2,26 +2,27 @@
 
 import { siteConfig } from '@/src/config/site.config';
 import {
-  NotificationBell,
-  NotificationDropdown,
+    NotificationBell,
+    NotificationDropdown,
 } from '@/src/presentation/components/common/NotificationDropdown';
 import { animated, useSpring } from '@react-spring/web';
 import {
-  Backpack,
-  BarChart2,
-  Gamepad2,
-  Globe,
-  Home,
-  LogOut,
-  MessageCircle,
-  Settings,
-  ShoppingBag,
-  Trophy,
-  User,
-  Users,
+    Backpack,
+    BarChart2,
+    Gamepad2,
+    Globe,
+    Home,
+    LogOut,
+    MessageCircle,
+    Settings,
+    ShoppingBag,
+    Trophy,
+    User,
+    Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { CurrencyBar } from '../currency/CurrencyBar';
 import { SoundToggle } from '../sound/SoundToggle';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -124,18 +125,9 @@ export function Header() {
 
             {/* Right Section */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Progress Display - hidden on mobile */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 
-                            rounded-full glass-subtle">
-                <div className="w-20 h-2 rounded-full bg-[hsl(var(--color-surface))]">
-                  <div 
-                    className="h-full rounded-full bg-gradient-to-r from-green-400 to-green-500"
-                    style={{ width: `${(siteConfig.defaultStats.level / siteConfig.defaultStats.maxLevel) * 100}%` }}
-                  />
-                </div>
-                <span className="text-xs font-medium text-[hsl(var(--color-text-secondary))]">
-                  {siteConfig.defaultStats.level}/{siteConfig.defaultStats.maxLevel}
-                </span>
+              {/* Currency Display - hidden on mobile */}
+              <div className="hidden sm:block">
+                <CurrencyBar currencies={['gems', 'coins']} />
               </div>
 
               {/* Notifications */}
