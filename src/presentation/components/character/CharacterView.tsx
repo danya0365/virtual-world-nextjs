@@ -3,13 +3,16 @@
 import { CHARACTER_COLORS } from '@/src/infrastructure/repositories/mock/MockCharacterRepository';
 import { AnimatedButton } from '@/src/presentation/components/common/AnimatedButton';
 import { AnimatedCard } from '@/src/presentation/components/common/AnimatedCard';
+import { GlassPanel } from '@/src/presentation/components/common/GlassPanel';
 import { animated, config, useSpring } from '@react-spring/web';
 import {
+    Box,
     ChevronRight,
     Coins,
     Edit,
     Gem,
     Heart,
+    Layers,
     Palette,
     Shirt,
     Sparkles,
@@ -18,7 +21,12 @@ import {
     User
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
+
+// Lazy load 3D component to avoid SSR issues
+const Character3D = lazy(() => 
+  import('@/src/presentation/components/3d/Character3D').then(mod => ({ default: mod.Character3D }))
+);
 
 interface CharacterData {
   name: string;
@@ -53,12 +61,12 @@ const CHARACTER_DATA: CharacterData = {
 };
 
 const INVENTORY_ITEMS = [
-  { id: '1', name: 'หมวกนักสำรวจ', icon: '🎩', rarity: 'rare' },
-  { id: '2', name: 'ดาบไม้', icon: '⚔️', rarity: 'common' },
-  { id: '3', name: 'โล่มังกร', icon: '🛡️', rarity: 'epic' },
-  { id: '4', name: 'พายุลม', icon: '🌪️', rarity: 'legendary' },
-  { id: '5', name: 'ปีกนางฟ้า', icon: '🪽', rarity: 'epic' },
-  { id: '6', name: 'คทาเวทมนตร์', icon: '✨', rarity: 'rare' },
+  { id: '1', name: 'หมวกนักสำรวจ', icon: '🎩', rarity: 'rare', accessoryId: 'hat' },
+  { id: '2', name: 'ดาบไม้', icon: '⚔️', rarity: 'common', accessoryId: null },
+  { id: '3', name: 'มงกุฎทอง', icon: '👑', rarity: 'epic', accessoryId: 'crown' },
+  { id: '4', name: 'ปีกนางฟ้า', icon: '🪽', rarity: 'legendary', accessoryId: 'wings' },
+  { id: '5', name: 'ดาวเวทมนตร์', icon: '⭐', rarity: 'epic', accessoryId: 'star' },
+  { id: '6', name: 'คทาเวทมนตร์', icon: '✨', rarity: 'rare', accessoryId: null },
 ];
 
 const rarityColors = {
@@ -68,10 +76,13 @@ const rarityColors = {
   legendary: 'from-yellow-400 to-orange-500',
 };
 
+type ViewMode = 'css' | '3d';
+
 export function CharacterView() {
   const [character, setCharacter] = useState(CHARACTER_DATA);
   const [selectedColor, setSelectedColor] = useState(character.bodyColor);
-  const [isCharacterRotating, setIsCharacterRotating] = useState(false);
+  const [selectedAccessory, setSelectedAccessory] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('css');
   const [rotation, setRotation] = useState(0);
 
   // Title animation
@@ -81,7 +92,7 @@ export function CharacterView() {
     config: config.gentle,
   });
 
-  // Character rotation animation
+  // Character rotation animation for CSS mode
   const characterSpring = useSpring({
     transform: `rotateY(${rotation}deg)`,
     config: { tension: 100, friction: 20 },
@@ -94,6 +105,14 @@ export function CharacterView() {
 
   const handleRotate = (direction: 'left' | 'right') => {
     setRotation(prev => prev + (direction === 'left' ? -30 : 30));
+  };
+
+  const handleAccessoryClick = (accessoryId: string | null) => {
+    setSelectedAccessory(prev => prev === accessoryId ? null : accessoryId);
+  };
+
+  const getColorValue = () => {
+    return CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0';
   };
 
   return (
@@ -110,11 +129,39 @@ export function CharacterView() {
           </p>
         </div>
 
-        <Link href="/character/create">
-          <AnimatedButton variant="primary" icon={<Edit className="w-4 h-4" />}>
-            แก้ไขโปรไฟล์
-          </AnimatedButton>
-        </Link>
+        <div className="flex gap-3">
+          {/* View Mode Toggle */}
+          <GlassPanel padding="none" className="flex rounded-xl overflow-hidden">
+            <button
+              onClick={() => setViewMode('css')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === 'css' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span className="text-sm font-medium">CSS</span>
+            </button>
+            <button
+              onClick={() => setViewMode('3d')}
+              className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
+                ${viewMode === '3d' 
+                  ? 'bg-[hsl(var(--color-primary))] text-white' 
+                  : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                }`}
+            >
+              <Box className="w-4 h-4" />
+              <span className="text-sm font-medium">3D</span>
+            </button>
+          </GlassPanel>
+
+          <Link href="/character/create">
+            <AnimatedButton variant="primary" icon={<Edit className="w-4 h-4" />}>
+              แก้ไขโปรไฟล์
+            </AnimatedButton>
+          </Link>
+        </div>
       </animated.div>
 
       {/* Main Content */}
@@ -123,91 +170,116 @@ export function CharacterView() {
         <div className="lg:col-span-5">
           <AnimatedCard delay={100} variant="gradient" className="h-full min-h-[450px] p-6">
             <div className="h-full flex flex-col items-center justify-center">
-              {/* 3D Character Preview */}
-              <div className="relative mb-4">
-                <animated.div 
-                  style={characterSpring}
-                  className="relative w-48 h-56"
-                >
-                  {/* Character Body */}
-                  <div 
-                    className="relative w-full h-full"
-                    style={{
-                      filter: 'drop-shadow(0 20px 40px rgba(100, 100, 200, 0.3))',
-                    }}
-                  >
-                    {/* Head */}
-                    <div 
-                      className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 rounded-3xl shadow-lg"
-                      style={{
-                        background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                      }}
-                    >
-                      <div className="absolute top-12 left-6 w-3 h-3 rounded-full bg-gray-800" />
-                      <div className="absolute top-12 right-6 w-3 h-3 rounded-full bg-gray-800" />
-                      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-gray-600" />
+              {viewMode === '3d' ? (
+                /* 3D Character Preview */
+                <div className="w-full h-[280px] rounded-xl overflow-hidden">
+                  <Suspense fallback={
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-[hsl(var(--color-primary))] border-t-transparent" />
                     </div>
+                  }>
+                    <Character3D 
+                      bodyColor={getColorValue()}
+                      eyeStyle="normal"
+                      accessory={selectedAccessory}
+                      autoRotate={true}
+                    />
+                  </Suspense>
+                </div>
+              ) : (
+                /* CSS Character Preview */
+                <>
+                  <div className="relative mb-4">
+                    <animated.div 
+                      style={characterSpring}
+                      className="relative w-48 h-56"
+                    >
+                      <div 
+                        className="relative w-full h-full"
+                        style={{
+                          filter: 'drop-shadow(0 20px 40px rgba(100, 100, 200, 0.3))',
+                        }}
+                      >
+                        {/* Accessory on top */}
+                        {selectedAccessory === 'crown' && (
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-3xl z-10">👑</div>
+                        )}
+                        {selectedAccessory === 'hat' && (
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-3xl z-10">🎩</div>
+                        )}
+                        {selectedAccessory === 'star' && (
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-2xl z-10">⭐</div>
+                        )}
 
-                    {/* Body */}
-                    <div 
-                      className="absolute top-24 left-1/2 -translate-x-1/2 w-24 h-28 rounded-3xl shadow-lg"
-                      style={{
-                        background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                      }}
-                    />
+                        {/* Head */}
+                        <div 
+                          className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 rounded-3xl shadow-lg"
+                          style={{ background: getColorValue() }}
+                        >
+                          <div className="absolute top-12 left-6 w-3 h-3 rounded-full bg-gray-800" />
+                          <div className="absolute top-12 right-6 w-3 h-3 rounded-full bg-gray-800" />
+                          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-gray-600" />
+                        </div>
 
-                    {/* Arms */}
-                    <div 
-                      className="absolute top-28 left-2 w-4 h-16 rounded-full shadow-md"
-                      style={{
-                        background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                      }}
-                    />
-                    <div 
-                      className="absolute top-28 right-2 w-4 h-16 rounded-full shadow-md"
-                      style={{
-                        background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                      }}
-                    />
+                        {/* Body */}
+                        <div 
+                          className="absolute top-24 left-1/2 -translate-x-1/2 w-24 h-28 rounded-3xl shadow-lg"
+                          style={{ background: getColorValue() }}
+                        />
 
-                    {/* Legs */}
-                    <div 
-                      className="absolute bottom-0 left-1/2 -translate-x-[130%] w-6 h-12 rounded-xl shadow-md"
-                      style={{
-                        background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                      }}
-                    />
-                    <div 
-                      className="absolute bottom-0 left-1/2 translate-x-[30%] w-6 h-12 rounded-xl shadow-md"
-                      style={{
-                        background: CHARACTER_COLORS.find(c => c.id === selectedColor)?.color || '#e8e8f0',
-                      }}
-                    />
+                        {/* Wings */}
+                        {selectedAccessory === 'wings' && (
+                          <>
+                            <div className="absolute top-20 -left-4 text-4xl opacity-80">🪽</div>
+                            <div className="absolute top-20 -right-4 text-4xl opacity-80 scale-x-[-1]">🪽</div>
+                          </>
+                        )}
+
+                        {/* Arms */}
+                        <div 
+                          className="absolute top-28 left-2 w-4 h-16 rounded-full shadow-md"
+                          style={{ background: getColorValue() }}
+                        />
+                        <div 
+                          className="absolute top-28 right-2 w-4 h-16 rounded-full shadow-md"
+                          style={{ background: getColorValue() }}
+                        />
+
+                        {/* Legs */}
+                        <div 
+                          className="absolute bottom-0 left-1/2 -translate-x-[130%] w-6 h-12 rounded-xl shadow-md"
+                          style={{ background: getColorValue() }}
+                        />
+                        <div 
+                          className="absolute bottom-0 left-1/2 translate-x-[30%] w-6 h-12 rounded-xl shadow-md"
+                          style={{ background: getColorValue() }}
+                        />
+                      </div>
+
+                      <Sparkles className="absolute -top-4 -right-4 w-6 h-6 text-yellow-400 animate-pulse" />
+                    </animated.div>
                   </div>
 
-                  {/* Sparkles */}
-                  <Sparkles className="absolute -top-4 -right-4 w-6 h-6 text-yellow-400 animate-pulse" />
-                </animated.div>
-              </div>
-
-              {/* Rotation Controls */}
-              <div className="flex gap-4 mb-4">
-                <button 
-                  onClick={() => handleRotate('left')}
-                  className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-[hsl(var(--color-primary)/0.1)] transition-colors"
-                >
-                  ◀
-                </button>
-                <button 
-                  onClick={() => handleRotate('right')}
-                  className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-[hsl(var(--color-primary)/0.1)] transition-colors"
-                >
-                  ▶
-                </button>
-              </div>
+                  {/* Rotation Controls for CSS mode */}
+                  <div className="flex gap-4 mb-4">
+                    <button 
+                      onClick={() => handleRotate('left')}
+                      className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-[hsl(var(--color-primary)/0.1)] transition-colors"
+                    >
+                      ◀
+                    </button>
+                    <button 
+                      onClick={() => handleRotate('right')}
+                      className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-[hsl(var(--color-primary)/0.1)] transition-colors"
+                    >
+                      ▶
+                    </button>
+                  </div>
+                </>
+              )}
 
               {/* Color Selection */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mt-4">
                 <Palette className="w-5 h-5 text-[hsl(var(--color-text-muted))]" />
                 <div className="flex gap-2">
                   {CHARACTER_COLORS.map((color) => (
@@ -225,6 +297,13 @@ export function CharacterView() {
                   ))}
                 </div>
               </div>
+
+              {/* 3D Mode Hint */}
+              {viewMode === '3d' && (
+                <p className="text-xs text-[hsl(var(--color-text-muted))] mt-4 text-center">
+                  🖱️ ลาก/หมุน เพื่อดูรอบด้าน | Scroll เพื่อซูม
+                </p>
+              )}
             </div>
           </AnimatedCard>
         </div>
@@ -295,12 +374,15 @@ export function CharacterView() {
             </AnimatedCard>
           </div>
 
-          {/* Inventory */}
+          {/* Inventory - Click to equip */}
           <AnimatedCard delay={700} variant="glass" className="p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-[hsl(var(--color-text-primary))] flex items-center gap-2">
                 <Shirt className="w-5 h-5" />
                 กระเป๋าไอเท็ม
+                <span className="text-xs text-[hsl(var(--color-text-muted))] font-normal">
+                  (คลิกเพื่อสวมใส่)
+                </span>
               </h3>
               <Link href="/inventory" className="text-sm text-[hsl(var(--color-primary))] flex items-center gap-1 hover:underline">
                 ดูทั้งหมด <ChevronRight className="w-4 h-4" />
@@ -309,15 +391,25 @@ export function CharacterView() {
 
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
               {INVENTORY_ITEMS.map((item) => (
-                <div 
+                <button 
                   key={item.id}
+                  onClick={() => item.accessoryId && handleAccessoryClick(item.accessoryId)}
+                  disabled={!item.accessoryId}
                   className={`aspect-square rounded-xl flex flex-col items-center justify-center
                             bg-gradient-to-br ${rarityColors[item.rarity as keyof typeof rarityColors]}/20
-                            border border-white/10 hover:scale-105 transition-transform cursor-pointer`}
+                            border-2 transition-all cursor-pointer
+                            ${selectedAccessory === item.accessoryId 
+                              ? 'border-[hsl(var(--color-primary))] scale-105 shadow-lg' 
+                              : 'border-white/10 hover:scale-105'
+                            }
+                            ${!item.accessoryId ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title={item.name}
                 >
                   <span className="text-2xl">{item.icon}</span>
-                </div>
+                  {selectedAccessory === item.accessoryId && (
+                    <span className="text-[8px] mt-1 text-[hsl(var(--color-primary))]">สวมใส่</span>
+                  )}
+                </button>
               ))}
             </div>
           </AnimatedCard>
