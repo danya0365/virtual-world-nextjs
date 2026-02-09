@@ -3,17 +3,17 @@
 import { siteConfig } from '@/src/config/site.config';
 import { animated, config, useSpring } from '@react-spring/web';
 import {
-    Backpack,
-    Gamepad2,
-    Globe,
-    Home,
-    MessageCircle,
-    MoreHorizontal,
-    ShoppingBag,
-    Trophy,
-    User,
-    Users,
-    X,
+  Backpack,
+  Gamepad2,
+  Globe,
+  Home,
+  MessageCircle,
+  MoreHorizontal,
+  ShoppingBag,
+  Trophy,
+  User,
+  Users,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -54,7 +54,7 @@ export function BottomTabBar() {
   return (
     <>
       {/* Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
         <div className="glass border-t border-[hsl(var(--color-primary)/0.1)] px-2">
           <div className="flex items-center justify-around h-16">
             {/* Primary Tabs */}
@@ -161,7 +161,7 @@ function MoreMenu({ isOpen, onClose, items, pathname }: MoreMenuProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] md:hidden">
+    <div className="fixed inset-0 z-[100]">
       {/* Backdrop */}
       <animated.div
         style={overlaySpring}

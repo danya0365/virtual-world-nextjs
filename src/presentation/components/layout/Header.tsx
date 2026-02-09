@@ -2,20 +2,20 @@
 
 import { siteConfig } from '@/src/config/site.config';
 import {
-    NotificationBell,
-    NotificationDropdown,
+  NotificationBell,
+  NotificationDropdown,
 } from '@/src/presentation/components/common/NotificationDropdown';
 import { animated, useSpring } from '@react-spring/web';
 import {
-    Backpack,
-    Gamepad2,
-    Globe,
-    Home,
-    MessageCircle,
-    ShoppingBag,
-    Trophy,
-    User,
-    Users,
+  Backpack,
+  Gamepad2,
+  Globe,
+  Home,
+  MessageCircle,
+  ShoppingBag,
+  Trophy,
+  User,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -68,8 +68,8 @@ export function Header() {
               </Link>
             </animated.div>
 
-            {/* Desktop Navigation - hidden on mobile (use BottomTabBar instead) */}
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Desktop Navigation - hidden (now using BottomTabBar on all screens) */}
+            <nav className="hidden items-center gap-1">
               {siteConfig.navigation.map((item) => {
                 const Icon = iconMap[item.icon] || Home;
                 const isHovered = hoveredItem === item.name;

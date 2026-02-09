@@ -3,7 +3,6 @@
 import { type ReactNode } from 'react';
 import { ThemeProvider } from '../providers/ThemeProvider';
 import { BottomTabBar } from './BottomTabBar';
-import { Footer } from './Footer';
 import { Header } from './Header';
 
 interface MainLayoutProps {
@@ -48,19 +47,17 @@ export function MainLayout({ children }: MainLayoutProps) {
         {/* Header */}
         <Header />
 
-        {/* Main Content - with bottom padding for mobile tabbar */}
-        <main className="flex-1 w-full pb-20 md:pb-0">
+        {/* Main Content - with bottom padding for tabbar */}
+        <main className="flex-1 w-full pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             {children}
           </div>
         </main>
 
-        {/* Footer - hidden on mobile (replaced by tabbar) */}
-        <div className="hidden md:block">
-          <Footer />
-        </div>
+        {/* Footer - hidden (replaced by tabbar) */}
+        {/* <Footer /> */}
 
-        {/* Bottom Tab Bar - mobile only */}
+        {/* Bottom Tab Bar - shown on all screens */}
         <BottomTabBar />
       </div>
     </ThemeProvider>
