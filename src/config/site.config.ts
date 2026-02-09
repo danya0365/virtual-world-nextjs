@@ -21,29 +21,41 @@ export const siteConfig = {
   
   // Navigation (Primary + Extended)
   navigation: [
-    // Primary Tabs (shown in bottom bar)
+    // Primary Tabs (shown in bottom bar - first 4 items)
     { name: 'หน้าแรก', href: '/', icon: 'Home' },
-    { name: 'สำรวจโลก', href: '/explore', icon: 'Globe' },
     { name: 'เกม', href: '/games', icon: 'Gamepad2' },
+    { name: 'กาชา', href: '/gacha', icon: 'Sparkles' },
+    { name: 'ร้านค้า', href: '/shop', icon: 'ShoppingBag' },
+    
+    // Secondary Navigation (in More menu) - Explore & Social
+    { name: 'สำรวจโลก', href: '/explore', icon: 'Globe' },
+    { name: 'แผนที่โลก', href: '/map', icon: 'Map' },
     { name: 'เพื่อน', href: '/friends', icon: 'Users' },
-    // Secondary Navigation (in More menu)
+    { name: 'แชท', href: '/chat', icon: 'MessageCircle' },
+    { name: 'ปาร์ตี้', href: '/party', icon: 'Users' },
+    { name: 'กิลด์', href: '/guilds', icon: 'Shield' },
+    
+    // Character & Inventory
     { name: 'ตัวละคร', href: '/character', icon: 'User' },
     { name: 'กระเป๋า', href: '/inventory', icon: 'Backpack' },
-    { name: 'ร้านค้า', href: '/shop', icon: 'ShoppingBag' },
-    { name: 'แชท', href: '/chat', icon: 'MessageCircle' },
-    { name: 'ความสำเร็จ', href: '/achievements', icon: 'Trophy' },
-    // New World-Class Features
+    { name: 'บ้านของฉัน', href: '/house', icon: 'Home' },
+    
+    // Shop System
+    { name: 'ร้านค้า Premium', href: '/shop/premium', icon: 'Crown' },
+    { name: 'ซื้อเพชร', href: '/shop/currency', icon: 'Gem' },
+    { name: 'ตลาดซื้อขาย', href: '/trading', icon: 'Store' },
+    
+    // Activities & Rewards
     { name: 'รางวัลรายวัน', href: '/daily', icon: 'Gift' },
     { name: 'อีเวนต์', href: '/events', icon: 'PartyPopper' },
     { name: 'ภารกิจ', href: '/quests', icon: 'ScrollText' },
-    { name: 'บ้านของฉัน', href: '/house', icon: 'Home' },
-    { name: 'ปาร์ตี้', href: '/party', icon: 'Users' },
-    { name: 'อันดับ', href: '/leaderboard', icon: 'Trophy' },
-    { name: 'ตลาดซื้อขาย', href: '/trading', icon: 'ShoppingBag' },
-    { name: 'กิลด์', href: '/guilds', icon: 'Shield' },
-    { name: 'แผนที่โลก', href: '/map', icon: 'Map' },
+    { name: 'ความสำเร็จ', href: '/achievements', icon: 'Trophy' },
+    { name: 'อันดับ', href: '/leaderboard', icon: 'Medal' },
+    
+    // Premium Features
     { name: 'VIP', href: '/vip', icon: 'Crown' },
-    // Additional Features
+    
+    // Profile
     { name: 'สถิติของฉัน', href: '/profile', icon: 'ChartBar' },
   ],
 

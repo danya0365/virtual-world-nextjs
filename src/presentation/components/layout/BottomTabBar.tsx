@@ -3,24 +3,28 @@
 import { siteConfig } from '@/src/config/site.config';
 import { animated, config, useSpring } from '@react-spring/web';
 import {
-  Backpack,
-  BarChart2,
-  Crown,
-  Gamepad2,
-  Gift,
-  Globe,
-  Home,
-  Map,
-  MessageCircle,
-  MoreHorizontal,
-  PartyPopper,
-  ScrollText,
-  Shield,
-  ShoppingBag,
-  Trophy,
-  User,
-  Users,
-  X
+    Backpack,
+    BarChart2,
+    Crown,
+    Gamepad2,
+    Gem,
+    Gift,
+    Globe,
+    Home,
+    Map,
+    Medal,
+    MessageCircle,
+    MoreHorizontal,
+    PartyPopper,
+    ScrollText,
+    Shield,
+    ShoppingBag,
+    Sparkles,
+    Store,
+    Trophy,
+    User,
+    Users,
+    X
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -43,11 +47,15 @@ const iconMap: Record<string, React.ElementType> = {
   Map,
   Shield,
   Crown,
+  Sparkles,
+  Gem,
+  Store,
+  Medal,
   ChartBar: BarChart2,
 };
 
-// Primary tabs shown in bottom bar (4 items)
-const PRIMARY_TAB_HREFS = ['/', '/explore', '/games', '/friends'];
+// Primary tabs shown in bottom bar (4 items + More)
+const PRIMARY_TAB_HREFS = ['/', '/games', '/gacha', '/shop'];
 
 export function BottomTabBar() {
   const pathname = usePathname();
