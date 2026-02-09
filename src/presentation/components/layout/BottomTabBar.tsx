@@ -1,0 +1,226 @@
+'use client';
+
+import { siteConfig } from '@/src/config/site.config';
+import { animated, config, useSpring } from '@react-spring/web';
+import {
+    Backpack,
+    Gamepad2,
+    Globe,
+    Home,
+    MessageCircle,
+    MoreHorizontal,
+    ShoppingBag,
+    Trophy,
+    User,
+    Users,
+    X,
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+
+// Icon mapping
+const iconMap: Record<string, React.ElementType> = {
+  Home,
+  Globe,
+  User,
+  ShoppingBag,
+  Users,
+  MessageCircle,
+  Backpack,
+  Trophy,
+  Gamepad2,
+};
+
+// Primary tabs shown in bottom bar (4 items)
+const PRIMARY_TAB_HREFS = ['/', '/explore', '/games', '/friends'];
+
+export function BottomTabBar() {
+  const pathname = usePathname();
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+
+  // Filter navigation into primary tabs and more items
+  const primaryTabs = siteConfig.navigation.filter(item => 
+    PRIMARY_TAB_HREFS.includes(item.href)
+  );
+  
+  const moreItems = siteConfig.navigation.filter(item => 
+    !PRIMARY_TAB_HREFS.includes(item.href)
+  );
+
+  // Check if current page is in more menu
+  const isMoreActive = moreItems.some(item => pathname === item.href);
+
+  return (
+    <>
+      {/* Bottom Tab Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+        <div className="glass border-t border-[hsl(var(--color-primary)/0.1)] px-2">
+          <div className="flex items-center justify-around h-16">
+            {/* Primary Tabs */}
+            {primaryTabs.map((item) => {
+              const Icon = iconMap[item.icon] || Home;
+              const isActive = pathname === item.href;
+              
+              return (
+                <TabButton
+                  key={item.href}
+                  href={item.href}
+                  icon={<Icon className="w-6 h-6" />}
+                  label={item.name}
+                  isActive={isActive}
+                />
+              );
+            })}
+
+            {/* More Button */}
+            <button
+              onClick={() => setIsMoreOpen(true)}
+              className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-w-[60px] min-h-[48px]
+                         rounded-xl transition-all duration-200 active:scale-95
+                         ${isMoreActive 
+                           ? 'text-[hsl(var(--color-primary))]' 
+                           : 'text-[hsl(var(--color-text-muted))]'
+                         }`}
+            >
+              <MoreHorizontal className="w-6 h-6" />
+              <span className="text-[10px] font-medium">เพิ่มเติม</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* More Menu Overlay */}
+      <MoreMenu 
+        isOpen={isMoreOpen} 
+        onClose={() => setIsMoreOpen(false)}
+        items={moreItems}
+        pathname={pathname}
+      />
+    </>
+  );
+}
+
+// Tab Button Component
+interface TabButtonProps {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  isActive: boolean;
+}
+
+function TabButton({ href, icon, label, isActive }: TabButtonProps) {
+  const spring = useSpring({
+    scale: isActive ? 1.05 : 1,
+    y: isActive ? -2 : 0,
+    config: config.wobbly,
+  });
+
+  return (
+    <Link href={href} className="block">
+      <animated.div
+        style={spring}
+        className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-w-[60px] min-h-[48px]
+                   rounded-xl transition-all duration-200 active:scale-95
+                   ${isActive 
+                     ? 'text-[hsl(var(--color-primary))] bg-[hsl(var(--color-primary)/0.1)]' 
+                     : 'text-[hsl(var(--color-text-muted))]'
+                   }`}
+      >
+        {icon}
+        <span className="text-[10px] font-medium">{label}</span>
+        
+        {/* Active indicator dot */}
+        {isActive && (
+          <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-[hsl(var(--color-primary))]" />
+        )}
+      </animated.div>
+    </Link>
+  );
+}
+
+// More Menu Component
+interface MoreMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  items: typeof siteConfig.navigation;
+  pathname: string;
+}
+
+function MoreMenu({ isOpen, onClose, items, pathname }: MoreMenuProps) {
+  const overlaySpring = useSpring({
+    opacity: isOpen ? 1 : 0,
+    config: config.gentle,
+  });
+
+  const menuSpring = useSpring({
+    transform: isOpen ? 'translateY(0%)' : 'translateY(100%)',
+    config: config.gentle,
+  });
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] md:hidden">
+      {/* Backdrop */}
+      <animated.div
+        style={overlaySpring}
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Menu Panel */}
+      <animated.div
+        style={menuSpring}
+        className="absolute bottom-0 left-0 right-0 glass rounded-t-3xl overflow-hidden"
+      >
+        {/* Handle Bar */}
+        <div className="flex justify-center py-3">
+          <div className="w-12 h-1 rounded-full bg-[hsl(var(--color-text-muted)/0.3)]" />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pb-4">
+          <h2 className="text-lg font-bold text-[hsl(var(--color-text-primary))]">
+            เมนูเพิ่มเติม
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl bg-[hsl(var(--color-primary)/0.1)] 
+                     hover:bg-[hsl(var(--color-primary)/0.2)] transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Menu Grid */}
+        <div className="grid grid-cols-3 gap-3 px-6 pb-8">
+          {items.map((item) => {
+            const Icon = iconMap[item.icon] || Home;
+            const isActive = pathname === item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onClose}
+                className={`flex flex-col items-center justify-center gap-2 p-4 min-h-[80px]
+                           rounded-2xl transition-all duration-200 active:scale-95
+                           ${isActive 
+                             ? 'bg-[hsl(var(--color-primary))] text-white shadow-lg' 
+                             : 'bg-[hsl(var(--color-surface))] text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                           }`}
+              >
+                <Icon className="w-7 h-7" />
+                <span className="text-xs font-medium text-center">{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Safe area padding */}
+        <div className="h-6" />
+      </animated.div>
+    </div>
+  );
+}
