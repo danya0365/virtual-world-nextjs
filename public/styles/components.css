@@ -1,0 +1,107 @@
+/* ============================================
+   Glassmorphism Utilities
+   ============================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-subtle {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+}
+
+/* ============================================
+   Gradient Text
+   ============================================ */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   Game Button
+   ============================================ */
+.btn-game {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--color-primary) 40%, transparent);
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-game:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--color-primary) 50%, transparent);
+}
+
+.btn-game:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   Card Hover Effect
+   ============================================ */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(100, 100, 200, 0.2);
+}
+
+/* ============================================
+   Progress Bar
+   ============================================ */
+.progress-bar {
+  height: 8px;
+  background: var(--color-surface);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
+/* ============================================
+   Star Rating
+   ============================================ */
+.star-filled {
+  color: var(--color-warning);
+}
+
+.star-empty {
+  color: var(--color-text-muted);
+}
+
+/* ============================================
+   3D Character Area
+   ============================================ */
+.character-display {
+  perspective: 1000px;
+}
+
+.character-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.character-3d:hover {
+  transform: rotateY(10deg);
+}
