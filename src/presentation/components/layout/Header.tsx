@@ -98,8 +98,7 @@ export function Header() {
                     href={item.href}
                     className="relative px-4 py-2 rounded-xl text-sm font-medium
                              transition-colors duration-200
-                             text-[hsl(var(--color-text-secondary))]
-                             hover:text-[hsl(var(--color-text-primary))]"
+                             text-text-secondary hover:text-text-primary"
                     onMouseEnter={() => setHoveredItem(item.name)}
                     onMouseLeave={() => setHoveredItem(null)}
                   >
@@ -113,7 +112,7 @@ export function Header() {
                       className="absolute inset-0 rounded-xl -z-10"
                       style={{
                         background: isHovered 
-                          ? 'hsl(var(--color-primary) / 0.1)' 
+                          ? 'color-mix(in srgb, var(--color-primary) 10%, transparent)' 
                           : 'transparent',
                         transition: 'background 0.2s ease',
                       }}
@@ -152,7 +151,7 @@ export function Header() {
                 <button 
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 
-                                border-[hsl(var(--color-primary))] shadow-lg
+                                border-primary shadow-lg
                                 hover:scale-105 transition-transform duration-200
                                 active:scale-95">
                   <div className="w-full h-full bg-gradient-to-br from-pink-400 to-purple-500 
@@ -172,7 +171,7 @@ export function Header() {
                         </div>
                         <div>
                           <p className="font-bold">Maros</p>
-                          <p className="text-xs text-[hsl(var(--color-text-muted))]">Level 25 • VIP</p>
+                          <p className="text-xs text-text-muted">Level 25 • VIP</p>
                         </div>
                       </div>
                     </div>
@@ -182,7 +181,7 @@ export function Header() {
                       <Link
                         href="/profile"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[hsl(var(--color-surface))] transition"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface transition"
                       >
                         <BarChart2 className="w-5 h-5 text-purple-500" />
                         <span>สถิติของฉัน</span>
@@ -190,7 +189,7 @@ export function Header() {
                       <Link
                         href="/character"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[hsl(var(--color-surface))] transition"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface transition"
                       >
                         <User className="w-5 h-5 text-blue-500" />
                         <span>ตัวละครของฉัน</span>
@@ -198,14 +197,14 @@ export function Header() {
                       <Link
                         href="/inventory"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[hsl(var(--color-surface))] transition"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface transition"
                       >
                         <Backpack className="w-5 h-5 text-orange-500" />
                         <span>กระเป๋า</span>
                       </Link>
                       <button
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[hsl(var(--color-surface))] transition"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface transition"
                       >
                         <Settings className="w-5 h-5 text-gray-500" />
                         <span>ตั้งค่า</span>

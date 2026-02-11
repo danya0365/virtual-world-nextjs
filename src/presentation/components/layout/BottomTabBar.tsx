@@ -77,7 +77,7 @@ export function BottomTabBar() {
     <>
       {/* Bottom Tab Bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
-        <div className="glass border-t border-[hsl(var(--color-primary)/0.1)] px-2">
+        <div className="glass border-t border-primary/10 px-2">
           <div className="flex items-center justify-around h-16">
             {/* Primary Tabs */}
             {primaryTabs.map((item) => {
@@ -101,8 +101,8 @@ export function BottomTabBar() {
               className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-w-[60px] min-h-[48px]
                          rounded-xl transition-all duration-200 active:scale-95
                          ${isMoreActive 
-                           ? 'text-[hsl(var(--color-primary))]' 
-                           : 'text-[hsl(var(--color-text-muted))]'
+                           ? 'text-primary' 
+                           : 'text-text-muted'
                          }`}
             >
               <MoreHorizontal className="w-6 h-6" />
@@ -145,8 +145,8 @@ function TabButton({ href, icon, label, isActive }: TabButtonProps) {
         className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-w-[60px] min-h-[48px]
                    rounded-xl transition-all duration-200 active:scale-95
                    ${isActive 
-                     ? 'text-[hsl(var(--color-primary))] bg-[hsl(var(--color-primary)/0.1)]' 
-                     : 'text-[hsl(var(--color-text-muted))]'
+                     ? 'text-primary bg-primary/10' 
+                     : 'text-text-muted'
                    }`}
       >
         {icon}
@@ -154,7 +154,7 @@ function TabButton({ href, icon, label, isActive }: TabButtonProps) {
         
         {/* Active indicator dot */}
         {isActive && (
-          <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-[hsl(var(--color-primary))]" />
+          <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary" />
         )}
       </animated.div>
     </Link>
@@ -240,25 +240,25 @@ function MoreMenu({ isOpen, onClose, items, pathname }: MoreMenuProps) {
       {/* Menu Panel */}
       <animated.div
         style={menuSpring}
-        className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl overflow-hidden max-h-[85vh] flex flex-col shadow-2xl"
+        className="absolute bottom-0 left-0 right-0 bg-background rounded-t-3xl overflow-hidden max-h-[85vh] flex flex-col shadow-2xl"
       >
         {/* Handle Bar */}
         <div className="flex justify-center py-3 flex-shrink-0">
-          <div className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
+          <div className="w-12 h-1.5 rounded-full bg-text-muted/30" />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pb-4 flex-shrink-0 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between px-6 pb-4 flex-shrink-0 border-b border-border">
           <div className="flex items-center gap-2">
             <span className="text-2xl">✨</span>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-bold text-text-primary">
               เมนูทั้งหมด
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400
-                     hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-all"
+            className="p-2.5 rounded-xl bg-surface text-text-secondary
+                     hover:bg-error/15 hover:text-error transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -271,7 +271,7 @@ function MoreMenu({ isOpen, onClose, items, pathname }: MoreMenuProps) {
               {/* Group Header */}
               <div className="flex items-center gap-3 px-2">
                 <div className={`w-1 h-6 rounded-full bg-gradient-to-b ${group.color}`} />
-                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wide">
                   {group.title}
                 </h3>
               </div>
@@ -291,7 +291,7 @@ function MoreMenu({ isOpen, onClose, items, pathname }: MoreMenuProps) {
                                  rounded-2xl transition-all duration-200 active:scale-95 overflow-hidden
                                  ${isActive 
                                    ? 'text-white shadow-lg' 
-                                   : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                   : 'bg-surface text-text-secondary hover:bg-surface-elevated'
                                  }`}
                     >
                       {/* Active background gradient */}
@@ -319,8 +319,8 @@ function MoreMenu({ isOpen, onClose, items, pathname }: MoreMenuProps) {
           ))}
 
           {/* Quick Access Footer */}
-          <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-center text-gray-400 dark:text-gray-500 mb-3">ทางลัด</p>
+          <div className="pt-4 mt-4 border-t border-border">
+            <p className="text-xs text-center text-text-muted mb-3">ทางลัด</p>
             <div className="flex items-center justify-center gap-4">
               <Link
                 href="/gacha"
@@ -343,9 +343,8 @@ function MoreMenu({ isOpen, onClose, items, pathname }: MoreMenuProps) {
         </div>
 
         {/* Safe area padding */}
-        <div className="h-6 flex-shrink-0 bg-white dark:bg-gray-900" />
+        <div className="h-6 flex-shrink-0 bg-background" />
       </animated.div>
     </div>
   );
 }
-

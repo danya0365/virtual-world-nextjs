@@ -40,8 +40,8 @@ export function MainLayout({ children }: MainLayoutProps) {
           <div 
             className="absolute inset-0 opacity-30 dark:opacity-10"
             style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, hsl(var(--color-primary) / 0.05) 0%, transparent 50%),
-                               radial-gradient(circle at 75% 75%, hsl(var(--color-secondary) / 0.05) 0%, transparent 50%)`,
+              backgroundImage: `radial-gradient(circle at 25% 25%, color-mix(in srgb, var(--color-primary) 5%, transparent) 0%, transparent 50%),
+                               radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--color-secondary) 5%, transparent) 0%, transparent 50%)`,
             }}
           />
         </div>

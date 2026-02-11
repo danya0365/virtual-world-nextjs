@@ -22,7 +22,7 @@ export function Footer() {
                   {siteConfig.name}
                 </span>
               </div>
-              <p className="text-sm text-[hsl(var(--color-text-muted))] mb-4">
+              <p className="text-sm text-text-muted mb-4">
                 {siteConfig.tagline}
               </p>
               
@@ -35,7 +35,7 @@ export function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-9 h-9 rounded-lg glass-subtle flex items-center justify-center
-                             hover:bg-[hsl(var(--color-primary)/0.2)] transition-colors duration-200"
+                             hover:bg-primary/20 transition-colors duration-200"
                     aria-label={name}
                   >
                     <span className="text-lg">
@@ -50,7 +50,7 @@ export function Footer() {
 
             {/* Game Links */}
             <div>
-              <h3 className="font-semibold text-[hsl(var(--color-text-primary))] mb-4">
+              <h3 className="font-semibold text-text-primary mb-4">
                 🎮 เกม
               </h3>
               <ul className="space-y-2">
@@ -58,8 +58,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[hsl(var(--color-text-muted))]
-                               hover:text-[hsl(var(--color-primary))] transition-colors"
+                      className="text-sm text-text-muted hover:text-primary transition-colors"
                     >
                       {link.name}
                     </Link>
@@ -70,7 +69,7 @@ export function Footer() {
 
             {/* Support Links */}
             <div>
-              <h3 className="font-semibold text-[hsl(var(--color-text-primary))] mb-4">
+              <h3 className="font-semibold text-text-primary mb-4">
                 💬 ช่วยเหลือ
               </h3>
               <ul className="space-y-2">
@@ -78,8 +77,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[hsl(var(--color-text-muted))]
-                               hover:text-[hsl(var(--color-primary))] transition-colors"
+                      className="text-sm text-text-muted hover:text-primary transition-colors"
                     >
                       {link.name}
                     </Link>
@@ -90,7 +88,7 @@ export function Footer() {
 
             {/* Legal Links */}
             <div>
-              <h3 className="font-semibold text-[hsl(var(--color-text-primary))] mb-4">
+              <h3 className="font-semibold text-text-primary mb-4">
                 📋 ข้อมูลเพิ่มเติม
               </h3>
               <ul className="space-y-2">
@@ -98,8 +96,7 @@ export function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[hsl(var(--color-text-muted))]
-                               hover:text-[hsl(var(--color-primary))] transition-colors"
+                      className="text-sm text-text-muted hover:text-primary transition-colors"
                     >
                       {link.name}
                     </Link>
@@ -110,12 +107,12 @@ export function Footer() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="mt-8 pt-6 border-t border-[hsl(var(--color-primary)/0.2)]">
+          <div className="mt-8 pt-6 border-t border-primary/20">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-[hsl(var(--color-text-muted))]">
+              <p className="text-sm text-text-muted">
                 © {currentYear} {siteConfig.name}. All rights reserved.
               </p>
-              <p className="text-sm text-[hsl(var(--color-text-muted))] flex items-center gap-1">
+              <p className="text-sm text-text-muted flex items-center gap-1">
                 Made with <span className="text-red-500 animate-pulse">❤️</span> in Thailand
               </p>
             </div>

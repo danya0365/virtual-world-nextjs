@@ -47,13 +47,13 @@ export function HomeView() {
       <animated.div style={titleSpring} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-            <span className="text-[hsl(var(--color-text-primary))]">
+            <span className="text-text-primary">
               ยินดีต้อนรับกลับมา,{' '}
             </span>
             <span className="gradient-text">Mike!</span>
             <span className="ml-2 inline-block animate-bounce-soft">👋</span>
           </h1>
-          <p className="text-[hsl(var(--color-text-secondary))]">
+          <p className="text-text-secondary">
             พร้อมที่จะสำรวจโลกใหม่แล้วหรือยัง?
           </p>
         </div>
@@ -64,8 +64,8 @@ export function HomeView() {
             onClick={() => setViewMode('css')}
             className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
               ${viewMode === 'css' 
-                ? 'bg-[hsl(var(--color-primary))] text-white' 
-                : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                ? 'bg-primary text-white' 
+                : 'text-text-secondary hover:bg-primary/10'
               }`}
           >
             <Layers className="w-4 h-4" />
@@ -75,8 +75,8 @@ export function HomeView() {
             onClick={() => setViewMode('3d')}
             className={`px-4 py-2 flex items-center gap-2 transition-all duration-200
               ${viewMode === '3d' 
-                ? 'bg-[hsl(var(--color-primary))] text-white' 
-                : 'text-[hsl(var(--color-text-secondary))] hover:bg-[hsl(var(--color-primary)/0.1)]'
+                ? 'bg-primary text-white' 
+                : 'text-text-secondary hover:bg-primary/10'
               }`}
           >
             <Box className="w-4 h-4" />
@@ -90,7 +90,7 @@ export function HomeView() {
         {/* Left Sidebar - Color Picker */}
         <div className="lg:col-span-2">
           <AnimatedCard delay={200} variant="glass" className="p-4">
-            <h2 className="text-sm font-semibold text-[hsl(var(--color-text-secondary))] mb-4">
+            <h2 className="text-sm font-semibold text-text-secondary mb-4">
               สีตัวละคร
             </h2>
             <ColorPicker
@@ -114,7 +114,7 @@ export function HomeView() {
                 /* 3D Character */
                 <Suspense fallback={
                   <div className="flex items-center justify-center h-64 w-full">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[hsl(var(--color-primary))] border-t-transparent" />
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
                   </div>
                 }>
                   <div className="w-full h-72">
@@ -202,7 +202,7 @@ export function HomeView() {
               )}
 
               {/* Hover instruction */}
-              <p className="mt-8 text-sm text-[hsl(var(--color-text-muted))] text-center">
+              <p className="mt-8 text-sm text-text-muted text-center">
                 {viewMode === '3d' ? '🖱️ ลากเพื่อหมุนตัวละคร' : 'เลื่อนเมาส์ไปบนตัวละครเพื่อดูการหมุน'}
               </p>
             </div>
@@ -214,7 +214,7 @@ export function HomeView() {
           {/* Stars */}
           <AnimatedCard delay={400} variant="glass" className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-[hsl(var(--color-text-secondary))]">ดาว</span>
+              <span className="text-sm text-text-secondary">ดาว</span>
               <div className="flex gap-0.5">
                 {Array.from({ length: stats.maxStars }).map((_, i) => (
                   <Star
@@ -236,10 +236,10 @@ export function HomeView() {
                 <Coins className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1">
-                <div className="text-2xl font-bold text-[hsl(var(--color-text-primary))]">
+                <div className="text-2xl font-bold text-text-primary">
                   {stats.coins}
                 </div>
-                <div className="h-1.5 w-full bg-[hsl(var(--color-surface))] rounded-full mt-1">
+                <div className="h-1.5 w-full bg-surface rounded-full mt-1">
                   <div 
                     className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-orange-400"
                     style={{ width: '65%' }}
@@ -257,10 +257,10 @@ export function HomeView() {
                 <Gem className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1">
-                <div className="text-2xl font-bold text-[hsl(var(--color-text-primary))]">
+                <div className="text-2xl font-bold text-text-primary">
                   {stats.gems}
                 </div>
-                <div className="h-1.5 w-full bg-[hsl(var(--color-surface))] rounded-full mt-1">
+                <div className="h-1.5 w-full bg-surface rounded-full mt-1">
                   <div 
                     className="h-full rounded-full bg-gradient-to-r from-red-400 to-pink-500"
                     style={{ width: '24%' }}
@@ -292,8 +292,8 @@ export function HomeView() {
             <Users className="w-5 h-5 text-white" />
           </div>
           <div>
-            <div className="text-lg font-bold text-[hsl(var(--color-text-primary))]">1,234</div>
-            <div className="text-xs text-[hsl(var(--color-text-muted))]">เพื่อนออนไลน์</div>
+            <div className="text-lg font-bold text-text-primary">1,234</div>
+            <div className="text-xs text-text-muted">เพื่อนออนไลน์</div>
           </div>
         </GlassPanel>
 
@@ -303,8 +303,8 @@ export function HomeView() {
             <span className="text-lg">🎮</span>
           </div>
           <div>
-            <div className="text-lg font-bold text-[hsl(var(--color-text-primary))]">56</div>
-            <div className="text-xs text-[hsl(var(--color-text-muted))]">ด่านที่ผ่าน</div>
+            <div className="text-lg font-bold text-text-primary">56</div>
+            <div className="text-xs text-text-muted">ด่านที่ผ่าน</div>
           </div>
         </GlassPanel>
 
@@ -314,8 +314,8 @@ export function HomeView() {
             <span className="text-lg">🏆</span>
           </div>
           <div>
-            <div className="text-lg font-bold text-[hsl(var(--color-text-primary))]">12</div>
-            <div className="text-xs text-[hsl(var(--color-text-muted))]">รางวัล</div>
+            <div className="text-lg font-bold text-text-primary">12</div>
+            <div className="text-xs text-text-muted">รางวัล</div>
           </div>
         </GlassPanel>
 
@@ -325,8 +325,8 @@ export function HomeView() {
             <span className="text-lg">💝</span>
           </div>
           <div>
-            <div className="text-lg font-bold text-[hsl(var(--color-text-primary))]">89</div>
-            <div className="text-xs text-[hsl(var(--color-text-muted))]">ไอเท็ม</div>
+            <div className="text-lg font-bold text-text-primary">89</div>
+            <div className="text-xs text-text-muted">ไอเท็ม</div>
           </div>
         </GlassPanel>
       </div>
